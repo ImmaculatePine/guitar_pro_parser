@@ -96,7 +96,6 @@ module GuitarProParser
     end
 
     def parse_triplet_feel
-      @triplet_feel = false
       if @version < 5.0
         value = read_byte
         @triplet_feel = !value.zero?
@@ -108,9 +107,9 @@ module GuitarProParser
     end
 
     def parse_lyrics
-      @lyrics = []
-
       if @version >= 4.0
+        @lyrics = []
+        
         5.times do 
           start_bar = read_integer
           length = read_integer
