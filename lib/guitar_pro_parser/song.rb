@@ -1,5 +1,7 @@
 module GuitarProParser
 
+  require "guitar_pro_parser/parser"
+
   # This class represents the content of Guitar Pro file.
   # It is initialized by path to .gp[3,4,5] file and automatically parse its data.
   #
@@ -7,6 +9,7 @@ module GuitarProParser
   #
   # All attributes are read-only
   #
+  # * +file_path+     (string)  Path to Guitar Pro file
   # * +version+       (float)   Version of Guitar Pro
   # * +title+         (string)
   # * +subtitle+      (string)
@@ -57,7 +60,7 @@ module GuitarProParser
 
     def initialize file_path
       @file_path = file_path
-      @offset = 0
+      @parser = Parser.new @file_path
 
       FIELDS.each do |field|
         if CUSTOM_METHODS.include? field
@@ -71,14 +74,14 @@ module GuitarProParser
   private
 
     def parse_version
-      length = read_byte
-      version_string = read_string length
+      length = @parser.read_byte
+      version_string = @parser.read_string length
       # TODO: Change a way to get value from string
       version_string['FICHIER GUITAR PRO v'] = ''
       @version = version_string.to_f
 
       # Skip first 31 bytes that are reserved for version data
-      @offset = 31
+      @parser.offset = 31
     end
 
     def parse_lyricist
@@ -88,42 +91,40 @@ module GuitarProParser
     def parse_notices
       @notices = []
 
-      notices_count = read_integer
+      notices_count = @parser.read_integer
       notices_count.times do 
-        notice = read_chunk
-        @notices << notice
+        @notices << @parser.read_chunk
       end
     end
 
     def parse_triplet_feel
       if @version < 5.0
-        value = read_byte
+        value = @parser.read_byte
         @triplet_feel = !value.zero?
       end
     end
 
     def parse_lyrics_track
-      @lyrics_track = read_integer if @version >= 4.0
+      @lyrics_track = @parser.read_integer if @version >= 4.0
     end
 
     def parse_lyrics
       if @version >= 4.0
         @lyrics = []
-        
+
         5.times do 
-          start_bar = read_integer
-          length = read_integer
-          lyrics_text = read_string length
-          element = {text: lyrics_text, bar: start_bar}
-          @lyrics << element
+          start_bar = @parser.read_integer
+          length = @parser.read_integer
+          lyrics_text = @parser.read_string length
+          @lyrics << {text: lyrics_text, bar: start_bar}
         end
       end
     end
 
     def parse_master_volume
       if @version >= 5.0
-        @master_volume = read_integer 
-        increment_offset 4
+        @master_volume = @parser.read_integer 
+        @parser.increment_offset 4
       end
     end
 
@@ -131,50 +132,15 @@ module GuitarProParser
       if @version >= 5.0
         @equalizer = []
         11.times do
-          value = read_byte
-          @equalizer << value
+          @equalizer << @parser.read_byte
         end
       end
     end
 
 
     def parse field
-      value = read_chunk
+      value = @parser.read_chunk
       instance_variable_set("@#{field}", value)
-    end
-
-    def read_integer
-      value = IO.binread(@file_path, 4, @offset).bytes.to_a[0].to_i
-      increment_offset 4
-      value
-    end
-
-    def read_byte
-      value = IO.binread(@file_path, 1, @offset).bytes.to_a[0].to_i
-      increment_offset 1
-      value
-    end
-
-    def read_string length
-      value = IO.binread(@file_path, length, @offset)
-      increment_offset length
-      value
-    end
-
-    def increment_offset delta
-      @offset = @offset + delta
-    end
-
-    # Reads data chunk from file.
-    #
-    # Chunk's format is:
-    # 4 bytes - field length (including string length byte that follows this value)
-    # 1 byte  - string length (N)
-    # N bytes - string
-    def read_chunk
-      field_length = read_integer
-      string_length = read_byte
-      read_string string_length
     end
 
   end
