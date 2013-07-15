@@ -24,6 +24,20 @@ module GuitarProParser
   #                             (for lyrics lines from 1 to 5). Each line has lyrics' text 
   #                             and number of bar where it starts: {text: "Some text", bar: 1}
   #                             (>= 4.0 only)
+  # * +master_volume+ (integer) Master volume (value from 0 - 200, default is 100) (>= 5.0 only)
+  # * +equalizer+     (array)   Array of equalizer settings. 
+  #                             Each one is represented as number of increments of .1dB the volume for 
+  #                             32Hz band is lowered
+  #                             60Hz band is lowered
+  #                             125Hz band is lowered
+  #                             250Hz band is lowered
+  #                             500Hz band is lowered
+  #                             1KHz band is lowered
+  #                             2KHz band is lowered
+  #                             4KHz band is lowered
+  #                             8KHz band is lowered
+  #                             16KHz band is lowered
+  #                             overall volume is lowered (gain)
   #
   
   class Song
@@ -32,10 +46,12 @@ module GuitarProParser
     attr_reader :file_path
 
     # List of header's fields
-    FIELDS = [:version, :title, :subtitle, :artist, :album, :lyricist, :composer, :copyright, :transcriber, :instructions, :notices, :triplet_feel, :lyrics_track, :lyrics]
+    FIELDS = [:version, :title, :subtitle, :artist, :album, :lyricist, :composer, :copyright, 
+              :transcriber, :instructions, :notices, :triplet_feel, :lyrics_track, :lyrics,
+              :master_volume, :equalizer]
 
     # List of fields that couldn't be parsed as usual and have custom methods for parsing
-    CUSTOM_METHODS = [:version, :lyricist, :notices, :triplet_feel, :lyrics_track, :lyrics]
+    CUSTOM_METHODS = [:version, :lyricist, :notices, :triplet_feel, :lyrics_track, :lyrics, :master_volume, :equalizer]
 
     attr_reader *FIELDS
 
@@ -101,6 +117,23 @@ module GuitarProParser
           lyrics_text = read_string length
           element = {text: lyrics_text, bar: start_bar}
           @lyrics << element
+        end
+      end
+    end
+
+    def parse_master_volume
+      if @version >= 5.0
+        @master_volume = read_integer 
+        increment_offset 4
+      end
+    end
+
+    def parse_equalizer
+      if @version >= 5.0
+        @equalizer = []
+        11.times do
+          value = read_byte
+          @equalizer << value
         end
       end
     end

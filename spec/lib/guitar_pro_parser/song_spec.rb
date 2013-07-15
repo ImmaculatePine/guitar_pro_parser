@@ -57,6 +57,14 @@ describe GuitarProParser::Song do
     it "should determine triplet feel" do
       subject.triplet_feel.should == false
     end
+
+    it "should not have master volume" do
+      subject.master_volume.should be_nil
+    end
+
+    it "should not have equalizer" do
+      subject.equalizer.should be_nil
+    end
   end
 
   describe "Guitar Pro 5" do
@@ -75,6 +83,18 @@ describe GuitarProParser::Song do
 
     it "should not have triplet feel" do
       subject.triplet_feel.should == false
+    end
+
+    it "should determine master volume" do
+      subject.master_volume.should == 100
+    end
+
+    it "should determine equalizer settings" do
+      equalizer = []
+      11.times do
+        equalizer << 0
+      end
+      subject.equalizer.should == equalizer
     end
   end
 
