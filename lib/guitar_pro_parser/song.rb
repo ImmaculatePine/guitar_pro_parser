@@ -43,6 +43,10 @@ module GuitarProParser
   #                             16KHz band is lowered
   #                             overall volume is lowered (gain)
   # * +page_setup+    (object)  Object of PageSetup class that contains data about page setup (>= 5.0 only)
+  # * +tempo+         (string)  (>= 5.0 only)
+  # * +bpm+           (integer) Tempo as beats per minute
+  # * +key+           (integer) #TODO: convert digit to something readable (has different format for GP3 and GP4/5)
+  # * +octave+        (integer) (>= 4.0 only)
   #
   
   class Song
@@ -53,10 +57,11 @@ module GuitarProParser
     # List of header's fields
     FIELDS = [:version, :title, :subtitle, :artist, :album, :lyricist, :composer, :copyright, 
               :transcriber, :instructions, :notices, :triplet_feel, :lyrics_track, :lyrics,
-              :master_volume, :equalizer, :page_setup]
+              :master_volume, :equalizer, :page_setup, :tempo, :bpm, :key, :octave]
 
     # List of fields that couldn't be parsed as usual and have custom methods for parsing
-    CUSTOM_METHODS = [:version, :lyricist, :notices, :triplet_feel, :lyrics_track, :lyrics, :master_volume, :equalizer, :page_setup]
+    CUSTOM_METHODS = [:version, :lyricist, :notices, :triplet_feel, :lyrics_track, :lyrics, 
+                      :master_volume, :equalizer, :page_setup, :tempo, :bpm, :key, :octave]
 
     attr_reader *FIELDS
 
@@ -126,7 +131,7 @@ module GuitarProParser
     def parse_master_volume
       if @version >= 5.0
         @master_volume = @parser.read_integer 
-        @parser.increment_offset 4
+        @parser.skip_integer
       end
     end
 
@@ -141,6 +146,30 @@ module GuitarProParser
 
     def parse_page_setup
       @page_setup = PageSetup.new @parser if @version >= 5.0
+    end
+
+    def parse_tempo
+      @tempo = @parser.read_chunk if @version >= 5.0
+    end
+
+    def parse_bpm
+      @bpm = @parser.read_integer
+      @parser.skip_byte if @version >= 5.0
+    end
+
+    def parse_key
+      if @version >= 4.0
+        @key = @parser.read_byte
+        3.times { @parser.skip_byte }
+      else
+        @key = @parser.read_integer
+      end
+    end
+
+    def parse_octave
+      if @version >= 4.0
+        @octave = @parser.read_byte
+      end
     end
 
 

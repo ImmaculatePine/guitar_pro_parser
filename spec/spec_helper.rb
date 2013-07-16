@@ -17,3 +17,7 @@ RSpec.configure do |config|
   #     --seed 1234
   config.order = 'random'
 end
+
+def test_tab_path version
+  "spec/tabs/tab.gp#{version.to_s}"
+end

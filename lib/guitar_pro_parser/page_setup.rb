@@ -37,7 +37,7 @@ module GuitarProParser
     end
 
     def parse_fields_bitmask
-      @parser.read_short_integer
+      @parser.skip_short_integer
       @fields_bitmask = []
       16.times do 
         @fields_bitmask << 0 # TODO

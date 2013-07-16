@@ -12,6 +12,7 @@ describe GuitarProParser::Song do
     its(:transcriber) { should == 'Transcriber' }
     its(:instructions) { should == 'Instructions' }
     its(:notices) { should include('Notice 1', 'Notice 2', 'Notice 3') }
+    its(:bpm) { should == 120 }
   end
 
   shared_examples 'Guitar Pro 4 and 5' do
@@ -22,6 +23,9 @@ describe GuitarProParser::Song do
         subject.lyrics.should include( {text: "Lyrics line #{i+1}", bar: i+1} )
       end
     end
+
+    its(:key) { should == 0 }
+    its(:octave) { should == 0 }
   end
 
   shared_examples 'Guitar Pro 3 and 4' do
@@ -30,11 +34,12 @@ describe GuitarProParser::Song do
     its(:master_volume) { should be_nil }
     its(:equalizer) { should be_nil }
     its(:page_setup) { should be_nil}
+    its(:tempo) { should be_nil }
   end
 
 
   describe 'Guitar Pro 5' do
-    subject { GuitarProParser::Song.new 'spec/tabs/tab.gp5' }
+    subject { GuitarProParser::Song.new test_tab_path 5 }
 
     it_behaves_like 'Any Guitar Pro version'
     it_behaves_like 'Guitar Pro 4 and 5'
@@ -51,10 +56,11 @@ describe GuitarProParser::Song do
     end
 
     its(:page_setup) { should be_kind_of GuitarProParser::PageSetup }
+    its(:tempo) { should == 'Moderate' }
   end
 
   describe 'Guitar Pro 4' do
-    subject { GuitarProParser::Song.new 'spec/tabs/tab.gp4' }
+    subject { GuitarProParser::Song.new test_tab_path 4 }
     
     it_behaves_like 'Any Guitar Pro version'
     it_behaves_like 'Guitar Pro 3 and 4'
@@ -65,7 +71,7 @@ describe GuitarProParser::Song do
 
   # TODO Create GP3 file for testing purposes
   # describe 'Guitar Pro 3' do
-  #   subject { GuitarProParser::Song.new 'spec/tabs/version3.gp3' }
+  #   subject { GuitarProParser::Song.new test_tab_path 3 }
 
   #   it_behaves_like 'Any Guitar Pro version'
   #   it_behaves_like 'Guitar Pro 3 and 4'
@@ -73,6 +79,8 @@ describe GuitarProParser::Song do
   #   its(:version) { should == 3.0 }
   #   its(:lyrics_track) { should be_nil }
   #   its(:lyrics) { should be_nil }
+  #   its(:key) { should == 0 }
+  #   its(:octave) { should be_nil }
   
   # end
 end

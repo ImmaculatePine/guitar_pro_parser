@@ -1,6 +1,10 @@
 module GuitarProParser
   class Parser
 
+    INTEGER_LENGTH =       4
+    SHORT_INTEGER_LENGTH = 2
+    BYTE_LENGTH =          1
+
     attr_accessor :offset
 
     def initialize file_path
@@ -9,20 +13,20 @@ module GuitarProParser
     end
 
     def read_integer
-      value = IO.binread(@file_path, 4, @offset).bytes.to_a[0].to_i
-      increment_offset 4
+      value = IO.binread(@file_path, INTEGER_LENGTH, @offset).bytes.to_a[0].to_i
+      skip_integer
       value
     end
 
     def read_short_integer
-      value = IO.binread(@file_path, 2, @offset).bytes.to_a[0].to_i
-      increment_offset 2
+      value = IO.binread(@file_path, SHORT_INTEGER_LENGTH, @offset).bytes.to_a[0].to_i
+      skip_short_integer
       value
     end
 
     def read_byte
-      value = IO.binread(@file_path, 1, @offset).bytes.to_a[0].to_i
-      increment_offset 1
+      value = IO.binread(@file_path, BYTE_LENGTH, @offset).bytes.to_a[0].to_i
+      skip_byte
       value
     end
 
@@ -39,7 +43,7 @@ module GuitarProParser
     # 1 byte  - string length (N)
     # N bytes - string
     def read_chunk
-      increment_offset 4
+      skip_integer
       string_length = read_byte
       read_string string_length
     end
@@ -47,5 +51,18 @@ module GuitarProParser
     def increment_offset delta
       @offset = @offset + delta
     end
+
+    def skip_integer
+      increment_offset INTEGER_LENGTH
+    end
+
+    def skip_short_integer
+      increment_offset SHORT_INTEGER_LENGTH
+    end
+
+    def skip_byte
+      increment_offset BYTE_LENGTH
+    end
+
   end
 end

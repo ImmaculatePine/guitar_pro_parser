@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe GuitarProParser::PageSetup do
   subject do
-    song = GuitarProParser::Song.new 'spec/tabs/tab.gp5'
+    song = GuitarProParser::Song.new test_tab_path 5
     song.page_setup
   end
 

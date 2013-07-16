@@ -1,9 +1,7 @@
 require 'spec_helper'
 
-FILE_PATH = 'spec/tabs/tab.gp5'
-
 describe GuitarProParser::Parser do
-  subject { GuitarProParser::Parser.new FILE_PATH}
+  subject { GuitarProParser::Parser.new test_tab_path 5}
   
   describe '#read_byte' do
     let!(:result) { subject.read_byte }
@@ -63,6 +61,27 @@ describe GuitarProParser::Parser do
     it 'changes offset' do
       subject.increment_offset 5
       subject.offset.should == 5
+    end
+  end
+
+  describe '#skip_integer' do
+    it 'changes offset' do
+      subject.skip_integer
+      subject.offset.should == 4
+    end
+  end
+
+  describe '#skip_short_integer' do
+    it 'changes offset' do
+      subject.skip_short_integer
+      subject.offset.should == 2
+    end
+  end
+
+  describe '#skip_byte' do
+    it 'changes offset' do
+      subject.skip_byte
+      subject.offset.should == 1
     end
   end
 end
