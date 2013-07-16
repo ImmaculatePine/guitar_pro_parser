@@ -14,6 +14,12 @@ module GuitarProParser
       value
     end
 
+    def read_short_integer
+      value = IO.binread(@file_path, 2, @offset).bytes.to_a[0].to_i
+      increment_offset 2
+      value
+    end
+
     def read_byte
       value = IO.binread(@file_path, 1, @offset).bytes.to_a[0].to_i
       increment_offset 1

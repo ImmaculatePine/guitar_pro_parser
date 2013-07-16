@@ -23,6 +23,17 @@ describe GuitarProParser::Parser do
     specify { result.should == 11 }
   end
 
+  describe '#read_short_integer' do
+    before (:each) do
+      subject.offset = 357
+    end
+
+    let!(:result) { subject.read_short_integer }
+    
+    its(:offset) { should == 359}
+    specify { result.should == 255 }
+  end
+
   shared_examples 'read_string and read_chunk' do
     its(:offset) { should == 46 }
     specify { result.should == 'Song Title' }

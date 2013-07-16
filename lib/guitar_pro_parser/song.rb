@@ -1,6 +1,7 @@
 module GuitarProParser
 
   require "guitar_pro_parser/parser"
+  require "guitar_pro_parser/page_setup"
 
   # This class represents the content of Guitar Pro file.
   # It is initialized by path to .gp[3,4,5] file and automatically parse its data.
@@ -41,6 +42,7 @@ module GuitarProParser
   #                             8KHz band is lowered
   #                             16KHz band is lowered
   #                             overall volume is lowered (gain)
+  # * +page_setup+    (object)  Object of PageSetup class that contains data about page setup (>= 5.0 only)
   #
   
   class Song
@@ -51,10 +53,10 @@ module GuitarProParser
     # List of header's fields
     FIELDS = [:version, :title, :subtitle, :artist, :album, :lyricist, :composer, :copyright, 
               :transcriber, :instructions, :notices, :triplet_feel, :lyrics_track, :lyrics,
-              :master_volume, :equalizer]
+              :master_volume, :equalizer, :page_setup]
 
     # List of fields that couldn't be parsed as usual and have custom methods for parsing
-    CUSTOM_METHODS = [:version, :lyricist, :notices, :triplet_feel, :lyrics_track, :lyrics, :master_volume, :equalizer]
+    CUSTOM_METHODS = [:version, :lyricist, :notices, :triplet_feel, :lyrics_track, :lyrics, :master_volume, :equalizer, :page_setup]
 
     attr_reader *FIELDS
 
@@ -135,6 +137,10 @@ module GuitarProParser
           @equalizer << @parser.read_byte
         end
       end
+    end
+
+    def parse_page_setup
+      @page_setup = PageSetup.new @parser if @version >= 5.0
     end
 
 
