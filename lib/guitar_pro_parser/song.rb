@@ -47,6 +47,8 @@ module GuitarProParser
   # * +bpm+           (integer) Tempo as beats per minute
   # * +key+           (integer) #TODO: convert digit to something readable (has different format for GP3 and GP4/5)
   # * +octave+        (integer) (>= 4.0 only)
+  # * +midi_channels+ (array)   Table of midi channels. There are 4 ports and 16 channels, the channels are stored in this order: 
+  #                             port1/channel1  - port1/channel2 ... port1/channel16 - port2/channel1 ...
   #
   
   class Song
@@ -57,11 +59,12 @@ module GuitarProParser
     # List of header's fields
     FIELDS = [:version, :title, :subtitle, :artist, :album, :lyricist, :composer, :copyright, 
               :transcriber, :instructions, :notices, :triplet_feel, :lyrics_track, :lyrics,
-              :master_volume, :equalizer, :page_setup, :tempo, :bpm, :key, :octave]
+              :master_volume, :equalizer, :page_setup, :tempo, :bpm, :key, :octave, :midi_channels]
 
     # List of fields that couldn't be parsed as usual and have custom methods for parsing
     CUSTOM_METHODS = [:version, :lyricist, :notices, :triplet_feel, :lyrics_track, :lyrics, 
-                      :master_volume, :equalizer, :page_setup, :tempo, :bpm, :key, :octave]
+                      :master_volume, :equalizer, :page_setup, :tempo, :bpm, :key, :octave,
+                      :midi_channels]
 
     attr_reader *FIELDS
 
@@ -169,6 +172,17 @@ module GuitarProParser
     def parse_octave
       if @version >= 4.0
         @octave = @parser.read_byte
+      end
+    end
+
+    # TODO
+    def parse_midi_channels
+      @midi_channels = []
+      64.times do
+        @parser.skip_integer
+        6.times { @parser.skip_byte}
+        @parser.skip_short_integer
+        @midi_channels << nil
       end
     end
 

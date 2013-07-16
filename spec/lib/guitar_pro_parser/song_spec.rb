@@ -13,6 +13,8 @@ describe GuitarProParser::Song do
     its(:instructions) { should == 'Instructions' }
     its(:notices) { should include('Notice 1', 'Notice 2', 'Notice 3') }
     its(:bpm) { should == 120 }
+    its('midi_channels.count') {should == 64}
+    pending 'midi channels data'
   end
 
   shared_examples 'Guitar Pro 4 and 5' do
