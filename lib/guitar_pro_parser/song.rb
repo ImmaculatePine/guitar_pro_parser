@@ -49,6 +49,10 @@ module GuitarProParser
   # * +octave+        (integer) (>= 4.0 only)
   # * +midi_channels+ (array)   Table of midi channels. There are 4 ports and 16 channels, the channels are stored in this order: 
   #                             port1/channel1  - port1/channel2 ... port1/channel16 - port2/channel1 ...
+  # * +directions_definitions+ (hash) Hash of musical directions definitions. 
+  #                                   Each symbol is represented as the bar number at which the it is placed.
+  #                                   If the symbol is not presented its value is nil.
+  #                                   There is full list of supported symbols in DIRECTIONS_DEFINITIONS array (>= 5.0 only)
   #
   
   class Song
@@ -59,14 +63,22 @@ module GuitarProParser
     # List of header's fields
     FIELDS = [:version, :title, :subtitle, :artist, :album, :lyricist, :composer, :copyright, 
               :transcriber, :instructions, :notices, :triplet_feel, :lyrics_track, :lyrics,
-              :master_volume, :equalizer, :page_setup, :tempo, :bpm, :key, :octave, :midi_channels]
+              :master_volume, :equalizer, :page_setup, :tempo, :bpm, :key, :octave, :midi_channels,
+              :directions_definitions]
 
     # List of fields that couldn't be parsed as usual and have custom methods for parsing
     CUSTOM_METHODS = [:version, :lyricist, :notices, :triplet_feel, :lyrics_track, :lyrics, 
                       :master_volume, :equalizer, :page_setup, :tempo, :bpm, :key, :octave,
-                      :midi_channels]
+                      :midi_channels, :directions_definitions]
 
     attr_reader *FIELDS
+
+    DIRECTIONS_DEFINITIONS = [:coda, :double_coda, :segno, :segno_segno, :fine, :da_capo,
+                              :da_capo_al_coda, :da_capo_al_double_coda, :da_capo_al_fine,
+                              :da_segno, :da_segno_al_coda, :da_segno_al_double_coda,
+                              :da_segno_al_fine, :da_segno_segno, :da_segno_segno_al_coda,
+                              :da_segno_segno_al_double_coda, :da_segno_segno_al_fine,
+                              :da_coda, :da_double_coda]
 
     def initialize file_path
       @file_path = file_path
@@ -186,6 +198,16 @@ module GuitarProParser
       end
     end
 
+    def parse_directions_definitions
+      if @version >= 5.0
+        @directions_definitions = {}
+        DIRECTIONS_DEFINITIONS.each do |definition|
+          value = @parser.read_integer
+          value = nil if value == 255
+          @directions_definitions[definition] = value
+        end
+      end      
+    end
 
     def parse field
       value = @parser.read_chunk

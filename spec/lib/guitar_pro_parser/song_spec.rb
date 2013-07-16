@@ -37,6 +37,7 @@ describe GuitarProParser::Song do
     its(:equalizer) { should be_nil }
     its(:page_setup) { should be_nil}
     its(:tempo) { should be_nil }
+    its(:directions_definitions) { should be_nil}
   end
 
 
@@ -59,6 +60,34 @@ describe GuitarProParser::Song do
 
     its(:page_setup) { should be_kind_of GuitarProParser::PageSetup }
     its(:tempo) { should == 'Moderate' }
+    its('directions_definitions.count') { should == 19 }
+    it 'has proper musical directions definitions' do
+      correct_values = {
+        coda: nil, 
+        double_coda: nil, 
+        segno: nil, 
+        segno_segno: nil, 
+        fine: nil, 
+        da_capo: nil,
+        da_capo_al_coda: nil, 
+        da_capo_al_double_coda: nil, 
+        da_capo_al_fine: nil,
+        da_segno: nil, 
+        da_segno_al_coda: 0, 
+        da_segno_al_double_coda: 0,
+        da_segno_al_fine: 0, 
+        da_segno_segno: 4, 
+        da_segno_segno_al_coda: 2,
+        da_segno_segno_al_double_coda: 0, 
+        da_segno_segno_al_fine: 0,
+        da_coda: 0, 
+        da_double_coda: 0
+      }
+           
+      subject.directions_definitions.each do |key, value|
+        value.should == correct_values[key]
+      end
+    end
   end
 
   describe 'Guitar Pro 4' do
