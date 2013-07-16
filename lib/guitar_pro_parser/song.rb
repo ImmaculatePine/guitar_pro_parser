@@ -53,6 +53,9 @@ module GuitarProParser
   #                                   Each symbol is represented as the bar number at which the it is placed.
   #                                   If the symbol is not presented its value is nil.
   #                                   There is full list of supported symbols in DIRECTIONS_DEFINITIONS array (>= 5.0 only)
+  # * +master_reverb+  (integer) Selected master reverb setting (in Score information, value from 0 to 60) (>= 5.0 only) #TODO represent as names
+  # * +bars_count+     (integer) Count of bars (measures)
+  # * +tracks_count+   (integer) Count of tracks
   #
   
   class Song
@@ -64,12 +67,12 @@ module GuitarProParser
     FIELDS = [:version, :title, :subtitle, :artist, :album, :lyricist, :composer, :copyright, 
               :transcriber, :instructions, :notices, :triplet_feel, :lyrics_track, :lyrics,
               :master_volume, :equalizer, :page_setup, :tempo, :bpm, :key, :octave, :midi_channels,
-              :directions_definitions]
+              :directions_definitions, :master_reverb, :bars_count, :tracks_count]
 
     # List of fields that couldn't be parsed as usual and have custom methods for parsing
     CUSTOM_METHODS = [:version, :lyricist, :notices, :triplet_feel, :lyrics_track, :lyrics, 
                       :master_volume, :equalizer, :page_setup, :tempo, :bpm, :key, :octave,
-                      :midi_channels, :directions_definitions]
+                      :midi_channels, :directions_definitions, :master_reverb, :bars_count, :tracks_count]
 
     attr_reader *FIELDS
 
@@ -202,11 +205,23 @@ module GuitarProParser
       if @version >= 5.0
         @directions_definitions = {}
         DIRECTIONS_DEFINITIONS.each do |definition|
-          value = @parser.read_integer
+          value = @parser.read_short_integer
           value = nil if value == 255
           @directions_definitions[definition] = value
         end
       end      
+    end
+
+    def parse_master_reverb
+      @master_reverb = @parser.read_integer if @version >= 5.0
+    end
+
+    def parse_bars_count
+      @bars_count = @parser.read_integer
+    end
+
+    def parse_tracks_count
+      @tracks_count = @parser.read_integer
     end
 
     def parse field

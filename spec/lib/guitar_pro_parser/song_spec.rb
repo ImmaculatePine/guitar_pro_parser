@@ -13,8 +13,10 @@ describe GuitarProParser::Song do
     its(:instructions) { should == 'Instructions' }
     its(:notices) { should include('Notice 1', 'Notice 2', 'Notice 3') }
     its(:bpm) { should == 120 }
-    its('midi_channels.count') {should == 64}
+    its('midi_channels.count') { should == 64 }
     pending 'midi channels data'
+    its(:bars_count) { should == 26 }
+    its(:tracks_count) { should == 2 }
   end
 
   shared_examples 'Guitar Pro 4 and 5' do
@@ -26,7 +28,7 @@ describe GuitarProParser::Song do
       end
     end
 
-    its(:key) { should == 0 }
+    its(:key) { should == 1 }
     its(:octave) { should == 0 }
   end
 
@@ -37,7 +39,8 @@ describe GuitarProParser::Song do
     its(:equalizer) { should be_nil }
     its(:page_setup) { should be_nil}
     its(:tempo) { should be_nil }
-    its(:directions_definitions) { should be_nil}
+    its(:directions_definitions) { should be_nil }
+    its(:master_reverb) { should be_nil }
   end
 
 
@@ -61,33 +64,36 @@ describe GuitarProParser::Song do
     its(:page_setup) { should be_kind_of GuitarProParser::PageSetup }
     its(:tempo) { should == 'Moderate' }
     its('directions_definitions.count') { should == 19 }
+    
     it 'has proper musical directions definitions' do
       correct_values = {
-        coda: nil, 
-        double_coda: nil, 
-        segno: nil, 
-        segno_segno: nil, 
-        fine: nil, 
-        da_capo: nil,
-        da_capo_al_coda: nil, 
-        da_capo_al_double_coda: nil, 
-        da_capo_al_fine: nil,
-        da_segno: nil, 
-        da_segno_al_coda: 0, 
-        da_segno_al_double_coda: 0,
-        da_segno_al_fine: 0, 
-        da_segno_segno: 4, 
-        da_segno_segno_al_coda: 2,
-        da_segno_segno_al_double_coda: 0, 
-        da_segno_segno_al_fine: 0,
-        da_coda: 0, 
-        da_double_coda: 0
+        coda: 7, 
+        double_coda: 8, 
+        segno: 9, 
+        segno_segno: 10, 
+        fine: 11, 
+        da_capo: 12,
+        da_capo_al_coda: 13, 
+        da_capo_al_double_coda: 14, 
+        da_capo_al_fine: 15,
+        da_segno: 16, 
+        da_segno_segno: 17, 
+        da_segno_al_coda: 18, 
+        da_segno_al_double_coda: 19,
+        da_segno_segno_al_coda: 20,
+        da_segno_segno_al_double_coda: 21, 
+        da_segno_al_fine: 22, 
+        da_segno_segno_al_fine: 23,
+        da_coda: 24, 
+        da_double_coda: 25
       }
-           
+
       subject.directions_definitions.each do |key, value|
         value.should == correct_values[key]
       end
     end
+
+    its(:master_reverb) { should == 1 }
   end
 
   describe 'Guitar Pro 4' do
