@@ -118,7 +118,7 @@ describe GuitarProParser::Song do
     end
   end
 
-  # TODO Create GP3 file for testing purposes
+  # TODO: Create GP3 file for testing purposes
   # describe 'Guitar Pro 3' do
   #   subject { GuitarProParser::Song.new test_tab_path 3 }
 

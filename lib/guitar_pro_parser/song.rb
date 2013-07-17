@@ -4,6 +4,7 @@ module GuitarProParser
   require "guitar_pro_parser/page_setup"
   require "guitar_pro_parser/bar"
   require "guitar_pro_parser/track"
+  require "guitar_pro_parser/beat"
 
   # This class represents the content of Guitar Pro file.
   # It is initialized by path to .gp[3,4,5] file and automatically parse its data.
@@ -91,7 +92,7 @@ module GuitarProParser
 
     def initialize file_path
       @file_path = file_path
-      @parser = Parser.new @file_path
+      @parser = Parser.new(@file_path)
 
       FIELDS.each do |field|
         if CUSTOM_METHODS.include? field
@@ -100,6 +101,8 @@ module GuitarProParser
           parse field
         end
       end
+
+      parse_beats
     end
 
   private
@@ -169,7 +172,7 @@ module GuitarProParser
     end
 
     def parse_page_setup
-      @page_setup = PageSetup.new @parser if @version >= 5.0
+      @page_setup = PageSetup.new(@parser) if @version >= 5.0
     end
 
     def parse_tempo
@@ -233,18 +236,26 @@ module GuitarProParser
     def parse_bars
       @bars = []
       @bars_count.times do |i|
-        @bars << (Bar.new @parser, self, i)
+        @bars << Bar.new(@parser, self, i)
       end
     end
 
     def parse_tracks
       @tracks = []
       @tracks_count.times do |i|
-        @tracks << (Track.new @parser, self, i)
+        @tracks << Track.new(@parser, self, i)
       end
 
       # Padding
       @parser.skip_byte if @version >= 5.0
+    end
+
+    def parse_beats
+      @bars.each do |bar| 
+        @tracks.each do |track|
+
+        end
+      end
     end
 
     def parse field

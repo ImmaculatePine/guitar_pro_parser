@@ -1,9 +1,10 @@
 module GuitarProParser
+
   class Parser
 
-    INTEGER_LENGTH =       4
+    INTEGER_LENGTH = 4
     SHORT_INTEGER_LENGTH = 2
-    BYTE_LENGTH =          1
+    BYTE_LENGTH = 1
 
     attr_accessor :offset
 
@@ -36,7 +37,7 @@ module GuitarProParser
 
     def read_string length
       value = IO.binread(@file_path, length, @offset)
-      increment_offset length
+      increment_offset(length)
       value
     end
 
@@ -57,32 +58,33 @@ module GuitarProParser
     end
 
     def skip_integer
-      increment_offset INTEGER_LENGTH
+      increment_offset(INTEGER_LENGTH)
     end
 
     def skip_short_integer
-      increment_offset SHORT_INTEGER_LENGTH
+      increment_offset(SHORT_INTEGER_LENGTH)
     end
 
     def skip_byte
-      increment_offset BYTE_LENGTH
+      increment_offset(BYTE_LENGTH)
     end
 
-    def to_bitmask n, length = 8
+    def to_bitmask(n, as = :digits, length = 8)
       bits = []
       
-      n.to_s(2).each_char do |bit|
-        bits << bit.to_i
-      end
-
+      n.to_s(2).each_char { |bit| bits << bit.to_i }
       bits = bits.reverse
+      bits << 0 while bits.count < length
 
-      while bits.count < length
-        bits << 0 
+      if as == :booleans
+        booleans = []
+        bits.each { |bit| booleans << !bit.zero? }
+        booleans
+      else
+        bits
       end
-
-      bits
     end
 
   end
+  
 end
