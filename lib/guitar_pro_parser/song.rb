@@ -51,10 +51,10 @@ module GuitarProParser
   # * +octave+        (integer) (>= 4.0 only)
   # * +midi_channels+ (array)   Table of midi channels. There are 4 ports and 16 channels, the channels are stored in this order: 
   #                             port1/channel1  - port1/channel2 ... port1/channel16 - port2/channel1 ...
-  # * +directions_definitions+ (hash) Hash of musical directions definitions. 
-  #                                   Each symbol is represented as the bar number at which the it is placed.
-  #                                   If the symbol is not presented its value is nil.
-  #                                   There is full list of supported symbols in DIRECTIONS_DEFINITIONS array (>= 5.0 only)
+  # * +musical_directions+ (hash) Hash of musical directions definitions. 
+  #                               Each symbol is represented as the bar number at which it is placed.
+  #                               If the symbol is not presented its value is nil.
+  #                               There is full list of supported symbols in MUSICAL_DIRECTIONS array (>= 5.0 only)
   # * +master_reverb+  (integer) Selected master reverb setting (in Score information, value from 0 to 60) (>= 5.0 only) #TODO represent as names
   # * +bars_count+     (integer) Count of bars (measures)
   # * +tracks_count+   (integer) Count of tracks
@@ -71,24 +71,23 @@ module GuitarProParser
     FIELDS = [:version, :title, :subtitle, :artist, :album, :lyricist, :composer, :copyright, 
               :transcriber, :instructions, :notices, :triplet_feel, :lyrics_track, :lyrics,
               :master_volume, :equalizer, :page_setup, :tempo, :bpm, :key, :octave, :midi_channels,
-              :directions_definitions, :master_reverb, :bars_count, :tracks_count,
+              :musical_directions, :master_reverb, :bars_count, :tracks_count,
               :bars, :tracks]
 
     # List of fields that couldn't be parsed as usual and have custom methods for parsing
     CUSTOM_METHODS = [:version, :lyricist, :notices, :triplet_feel, :lyrics_track, :lyrics, 
                       :master_volume, :equalizer, :page_setup, :tempo, :bpm, :key, :octave,
-                      :midi_channels, :directions_definitions, :master_reverb, :bars_count, :tracks_count,
+                      :midi_channels, :musical_directions, :master_reverb, :bars_count, :tracks_count,
                       :bars, :tracks]
 
     attr_reader *FIELDS
 
-    # TODO rename to musical_directions
-    DIRECTIONS_DEFINITIONS = [:coda, :double_coda, :segno, :segno_segno, :fine, :da_capo,
-                              :da_capo_al_coda, :da_capo_al_double_coda, :da_capo_al_fine,
-                              :da_segno, :da_segno_al_coda, :da_segno_al_double_coda,
-                              :da_segno_al_fine, :da_segno_segno, :da_segno_segno_al_coda,
-                              :da_segno_segno_al_double_coda, :da_segno_segno_al_fine,
-                              :da_coda, :da_double_coda]
+    MUSICAL_DIRECTIONS = [:coda, :double_coda, :segno, :segno_segno, :fine, :da_capo,
+                          :da_capo_al_coda, :da_capo_al_double_coda, :da_capo_al_fine,
+                          :da_segno, :da_segno_al_coda, :da_segno_al_double_coda,
+                          :da_segno_al_fine, :da_segno_segno, :da_segno_segno_al_coda,
+                          :da_segno_segno_al_double_coda, :da_segno_segno_al_fine,
+                          :da_coda, :da_double_coda]
 
     def initialize file_path
       @file_path = file_path
@@ -208,13 +207,13 @@ module GuitarProParser
       end
     end
 
-    def parse_directions_definitions
+    def parse_musical_directions
       if @version >= 5.0
-        @directions_definitions = {}
-        DIRECTIONS_DEFINITIONS.each do |definition|
+        @musical_directions = {}
+        MUSICAL_DIRECTIONS.each do |musical_direction|
           value = @parser.read_short_integer
           value = nil if value == 255
-          @directions_definitions[definition] = value
+          @musical_directions[musical_direction] = value
         end
       end      
     end

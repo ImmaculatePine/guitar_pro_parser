@@ -41,7 +41,7 @@ describe GuitarProParser::Song do
     its(:equalizer) { should be_nil }
     its(:page_setup) { should be_nil}
     its(:tempo) { should be_nil }
-    its(:directions_definitions) { should be_nil }
+    its(:musical_directions) { should be_nil }
     its(:master_reverb) { should be_nil }
   end
 
@@ -65,10 +65,10 @@ describe GuitarProParser::Song do
 
     its(:page_setup) { should be_kind_of GuitarProParser::PageSetup }
     its(:tempo) { should == 'Moderate' }
-    its('directions_definitions.count') { should == 19 }
+    its('musical_directions.count') { should == 19 }
     
     it 'has proper musical directions' do
-      subject.directions_definitions.each do |key, value|
+      subject.musical_directions.each do |key, value|
         value.should == nil
       end
     end
@@ -112,7 +112,7 @@ describe GuitarProParser::Song do
         da_double_coda: 19
       }
 
-      subject.directions_definitions.each do |key, value|
+      subject.musical_directions.each do |key, value|
         value.should == correct_values[key]
       end
     end
