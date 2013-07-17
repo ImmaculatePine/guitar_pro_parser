@@ -3,6 +3,7 @@ module GuitarProParser
   require "guitar_pro_parser/parser"
   require "guitar_pro_parser/page_setup"
   require "guitar_pro_parser/bar"
+  require "guitar_pro_parser/track"
 
   # This class represents the content of Guitar Pro file.
   # It is initialized by path to .gp[3,4,5] file and automatically parse its data.
@@ -58,6 +59,7 @@ module GuitarProParser
   # * +bars_count+     (integer) Count of bars (measures)
   # * +tracks_count+   (integer) Count of tracks
   # * +bars+           (array)   Array of Bar class objects
+  # * +tracks+         (array)   Array of Track class objects
   #
   
   class Song
@@ -70,13 +72,13 @@ module GuitarProParser
               :transcriber, :instructions, :notices, :triplet_feel, :lyrics_track, :lyrics,
               :master_volume, :equalizer, :page_setup, :tempo, :bpm, :key, :octave, :midi_channels,
               :directions_definitions, :master_reverb, :bars_count, :tracks_count,
-              :bars]
+              :bars, :tracks]
 
     # List of fields that couldn't be parsed as usual and have custom methods for parsing
     CUSTOM_METHODS = [:version, :lyricist, :notices, :triplet_feel, :lyrics_track, :lyrics, 
                       :master_volume, :equalizer, :page_setup, :tempo, :bpm, :key, :octave,
                       :midi_channels, :directions_definitions, :master_reverb, :bars_count, :tracks_count,
-                      :bars]
+                      :bars, :tracks]
 
     attr_reader *FIELDS
 
@@ -234,6 +236,16 @@ module GuitarProParser
       @bars_count.times do |i|
         @bars << (Bar.new @parser, self, i)
       end
+    end
+
+    def parse_tracks
+      @tracks = []
+      @tracks_count.times do |i|
+        @tracks << (Track.new @parser, self, i)
+      end
+
+      # Padding
+      @parser.skip_byte if @version >= 5.0
     end
 
     def parse field
