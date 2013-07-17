@@ -30,6 +30,10 @@ module GuitarProParser
       value
     end
 
+    def read_boolean
+      !read_byte.zero?
+    end
+
     def read_string length
       value = IO.binread(@file_path, length, @offset)
       increment_offset length
@@ -62,6 +66,22 @@ module GuitarProParser
 
     def skip_byte
       increment_offset BYTE_LENGTH
+    end
+
+    def to_bitmask n, length = 8
+      bits = []
+      
+      n.to_s(2).each_char do |bit|
+        bits << bit.to_i
+      end
+
+      bits = bits.reverse
+
+      while bits.count < length
+        bits << 0 
+      end
+
+      bits
     end
 
   end

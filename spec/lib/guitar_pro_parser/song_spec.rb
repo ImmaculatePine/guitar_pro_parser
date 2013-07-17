@@ -15,8 +15,9 @@ describe GuitarProParser::Song do
     its(:bpm) { should == 120 }
     its('midi_channels.count') { should == 64 }
     pending 'midi channels data'
-    its(:bars_count) { should == 26 }
+    its(:bars_count) { should == 18 }
     its(:tracks_count) { should == 2 }
+    its('bars.count') { should == 18 }
   end
 
   shared_examples 'Guitar Pro 4 and 5' do
@@ -34,7 +35,7 @@ describe GuitarProParser::Song do
 
   shared_examples 'Guitar Pro 3 and 4' do
     its(:lyricist) { should be_nil }
-    its(:triplet_feel) { should == false } # is determined
+    its(:triplet_feel) { should == true }
     its(:master_volume) { should be_nil }
     its(:equalizer) { should be_nil }
     its(:page_setup) { should be_nil}
@@ -65,31 +66,9 @@ describe GuitarProParser::Song do
     its(:tempo) { should == 'Moderate' }
     its('directions_definitions.count') { should == 19 }
     
-    it 'has proper musical directions definitions' do
-      correct_values = {
-        coda: 7, 
-        double_coda: 8, 
-        segno: 9, 
-        segno_segno: 10, 
-        fine: 11, 
-        da_capo: 12,
-        da_capo_al_coda: 13, 
-        da_capo_al_double_coda: 14, 
-        da_capo_al_fine: 15,
-        da_segno: 16, 
-        da_segno_segno: 17, 
-        da_segno_al_coda: 18, 
-        da_segno_al_double_coda: 19,
-        da_segno_segno_al_coda: 20,
-        da_segno_segno_al_double_coda: 21, 
-        da_segno_al_fine: 22, 
-        da_segno_segno_al_fine: 23,
-        da_coda: 24, 
-        da_double_coda: 25
-      }
-
+    it 'has proper musical directions' do
       subject.directions_definitions.each do |key, value|
-        value.should == correct_values[key]
+        value.should == nil
       end
     end
 
@@ -104,6 +83,38 @@ describe GuitarProParser::Song do
     it_behaves_like 'Guitar Pro 4 and 5'
 
     its(:version) { should == 4.06 }
+  end
+
+  describe 'Musical directions' do
+    subject { GuitarProParser::Song.new test_tab_path 5, 'test_musical_directions' }
+
+    it 'has proper musical directions' do
+      correct_values = {
+        coda: 1, 
+        double_coda: 2, 
+        segno: 3, 
+        segno_segno: 4, 
+        fine: 5, 
+        da_capo: 6,
+        da_capo_al_coda: 7, 
+        da_capo_al_double_coda: 8, 
+        da_capo_al_fine: 9,
+        da_segno: 10, 
+        da_segno_segno: 11, 
+        da_segno_al_coda: 12, 
+        da_segno_al_double_coda: 13,
+        da_segno_segno_al_coda: 14,
+        da_segno_segno_al_double_coda: 15, 
+        da_segno_al_fine: 16, 
+        da_segno_segno_al_fine: 17,
+        da_coda: 18, 
+        da_double_coda: 19
+      }
+
+      subject.directions_definitions.each do |key, value|
+        value.should == correct_values[key]
+      end
+    end
   end
 
   # TODO Create GP3 file for testing purposes

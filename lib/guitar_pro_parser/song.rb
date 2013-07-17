@@ -2,6 +2,7 @@ module GuitarProParser
 
   require "guitar_pro_parser/parser"
   require "guitar_pro_parser/page_setup"
+  require "guitar_pro_parser/bar"
 
   # This class represents the content of Guitar Pro file.
   # It is initialized by path to .gp[3,4,5] file and automatically parse its data.
@@ -56,6 +57,7 @@ module GuitarProParser
   # * +master_reverb+  (integer) Selected master reverb setting (in Score information, value from 0 to 60) (>= 5.0 only) #TODO represent as names
   # * +bars_count+     (integer) Count of bars (measures)
   # * +tracks_count+   (integer) Count of tracks
+  # * +bars+           (array)   Array of Bar class objects
   #
   
   class Song
@@ -67,15 +69,18 @@ module GuitarProParser
     FIELDS = [:version, :title, :subtitle, :artist, :album, :lyricist, :composer, :copyright, 
               :transcriber, :instructions, :notices, :triplet_feel, :lyrics_track, :lyrics,
               :master_volume, :equalizer, :page_setup, :tempo, :bpm, :key, :octave, :midi_channels,
-              :directions_definitions, :master_reverb, :bars_count, :tracks_count]
+              :directions_definitions, :master_reverb, :bars_count, :tracks_count,
+              :bars]
 
     # List of fields that couldn't be parsed as usual and have custom methods for parsing
     CUSTOM_METHODS = [:version, :lyricist, :notices, :triplet_feel, :lyrics_track, :lyrics, 
                       :master_volume, :equalizer, :page_setup, :tempo, :bpm, :key, :octave,
-                      :midi_channels, :directions_definitions, :master_reverb, :bars_count, :tracks_count]
+                      :midi_channels, :directions_definitions, :master_reverb, :bars_count, :tracks_count,
+                      :bars]
 
     attr_reader *FIELDS
 
+    # TODO rename to musical_directions
     DIRECTIONS_DEFINITIONS = [:coda, :double_coda, :segno, :segno_segno, :fine, :da_capo,
                               :da_capo_al_coda, :da_capo_al_double_coda, :da_capo_al_fine,
                               :da_segno, :da_segno_al_coda, :da_segno_al_double_coda,
@@ -222,6 +227,13 @@ module GuitarProParser
 
     def parse_tracks_count
       @tracks_count = @parser.read_integer
+    end
+
+    def parse_bars
+      @bars = []
+      @bars_count.times do |i|
+        @bars << (Bar.new @parser, self, i)
+      end
     end
 
     def parse field

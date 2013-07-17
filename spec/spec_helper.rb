@@ -18,6 +18,6 @@ RSpec.configure do |config|
   config.order = 'random'
 end
 
-def test_tab_path version
-  "spec/tabs/tab.gp#{version.to_s}"
+def test_tab_path version, filename = 'tab'
+  "spec/tabs/#{filename}.gp#{version.to_s}"
 end

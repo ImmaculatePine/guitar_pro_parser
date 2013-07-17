@@ -10,6 +10,13 @@ describe GuitarProParser::Parser do
     specify { result.should == 24 }
   end
 
+  describe '#read_boolean' do
+    let!(:result) { subject.read_boolean }
+
+    its(:offset) { should == 1}
+    specify { result.should == true }
+  end
+
   describe '#read_integer' do
     before (:each) do
       subject.offset = 31
@@ -82,6 +89,13 @@ describe GuitarProParser::Parser do
     it 'changes offset' do
       subject.skip_byte
       subject.offset.should == 1
+    end
+  end
+
+  describe '#to_bitmask' do
+    it 'converts integer to bitmask' do
+      result = subject.to_bitmask 7
+      result.should == [1, 1, 1, 0, 0, 0, 0, 0]
     end
   end
 end
