@@ -8,6 +8,22 @@ module GuitarProParser
 
     attr_accessor :offset
 
+    def self.to_bitmask(n, as = :digits, length = 8)
+      bits = []
+      
+      n.to_s(2).each_char { |bit| bits << bit.to_i }
+      bits = bits.reverse
+      bits << 0 while bits.count < length
+
+      if as == :booleans
+        booleans = []
+        bits.each { |bit| booleans << !bit.zero? }
+        booleans
+      else
+        bits
+      end
+    end
+
     def initialize file_path
       @file_path = file_path
       @offset = 0
@@ -67,22 +83,6 @@ module GuitarProParser
 
     def skip_byte
       increment_offset(BYTE_LENGTH)
-    end
-
-    def to_bitmask(n, as = :digits, length = 8)
-      bits = []
-      
-      n.to_s(2).each_char { |bit| bits << bit.to_i }
-      bits = bits.reverse
-      bits << 0 while bits.count < length
-
-      if as == :booleans
-        booleans = []
-        bits.each { |bit| booleans << !bit.zero? }
-        booleans
-      else
-        bits
-      end
     end
 
   end

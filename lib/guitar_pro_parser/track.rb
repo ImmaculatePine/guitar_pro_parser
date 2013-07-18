@@ -96,7 +96,7 @@ module GuitarProParser
       # Bit 5:        Marked for muted playback
       # Bit 6:        Use RSE playback (track instrument option)
       # Bit 7:        Indicate tuning on the score (track properties)
-      bits = @parser.to_bitmask(@parser.read_byte)
+      bits = Parser.to_bitmask(@parser.read_byte)
       @drums = !bits[0].zero?
       @twelve_stringed_guitar = !bits[1].zero?
       @banjo = !bits[2].zero?
@@ -177,7 +177,7 @@ module GuitarProParser
         # Bit 5:        Force channels 11 to 16
         # Bit 6:        Diagrams list on top of the score
         # Bit 7 (MSB):  Diagrams in the score
-        bits = @parser.to_bitmask(@parser.read_byte)
+        bits = Parser.to_bitmask(@parser.read_byte)
         @diagrams_below_the_standard_notation = !bits[2].zero?
         @show_rythm_with_tab = !bits[3].zero?
         @force_horizontal_beams = !bits[4].zero?
@@ -193,7 +193,7 @@ module GuitarProParser
         # Bit 2:        Auto Brush
         # Bit 3:        Extend rhythmic inside the tab
         # Bits 4-7:     Unknown
-        bits = @parser.to_bitmask(@parser.read_byte)
+        bits = Parser.to_bitmask(@parser.read_byte)
         @auto_let_ring = !bits[1].zero?
         @auto_brush = !bits[2].zero?
         @extend_rhytmic_inside_the_tab = !bits[3].zero?

@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe GuitarProParser::Bar do
+describe GuitarProParser::BarSettings do
   
   shared_context 'shared bar 1' do
     subject { song.bars[0] }

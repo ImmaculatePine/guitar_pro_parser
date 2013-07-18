@@ -1,8 +1,9 @@
 module GuitarProParser
 
+  require "guitar_pro_parser/guitar_pro_helper"
   require "guitar_pro_parser/parser"
   require "guitar_pro_parser/page_setup"
-  require "guitar_pro_parser/bar"
+  require "guitar_pro_parser/bar_settings"
   require "guitar_pro_parser/track"
   require "guitar_pro_parser/beat"
 
@@ -59,14 +60,13 @@ module GuitarProParser
   # * +master_reverb+  (integer) Selected master reverb setting (in Score information, value from 0 to 60) (>= 5.0 only) #TODO represent as names
   # * +bars_count+     (integer) Count of bars (measures)
   # * +tracks_count+   (integer) Count of tracks
-  # * +bars+           (array)   Array of Bar class objects
-  # * +tracks+         (array)   Array of Track class objects
+  # * +bars+           (array)   Array of settings of bars. Doesn't represent bars as containers for notes (look track[n].bars[k].beats for it)
+  # * +tracks+         (array)   Array of tracks
   #
   
   class Song
 
-    # Path to Guitar Pro file
-    attr_reader :file_path
+    include GuitarProHelper
 
     # List of header's fields
     FIELDS = [:version, :title, :subtitle, :artist, :album, :lyricist, :composer, :copyright, 
@@ -81,14 +81,19 @@ module GuitarProParser
                       :midi_channels, :musical_directions, :master_reverb, :bars_count, :tracks_count,
                       :bars, :tracks]
 
-    attr_reader *FIELDS
-
     MUSICAL_DIRECTIONS = [:coda, :double_coda, :segno, :segno_segno, :fine, :da_capo,
                           :da_capo_al_coda, :da_capo_al_double_coda, :da_capo_al_fine,
                           :da_segno, :da_segno_al_coda, :da_segno_al_double_coda,
                           :da_segno_al_fine, :da_segno_segno, :da_segno_segno_al_coda,
                           :da_segno_segno_al_double_coda, :da_segno_segno_al_fine,
                           :da_coda, :da_double_coda]
+
+    # Path to Guitar Pro file
+    attr_reader :file_path
+
+    attr_reader *FIELDS
+    attr_reader :beats
+    
 
     def initialize file_path
       @file_path = file_path
@@ -236,7 +241,7 @@ module GuitarProParser
     def parse_bars
       @bars = []
       @bars_count.times do |i|
-        @bars << Bar.new(@parser, self, i)
+        @bars << BarSettings.new(@parser, self, i)
       end
     end
 
@@ -251,11 +256,23 @@ module GuitarProParser
     end
 
     def parse_beats
-      @bars.each do |bar| 
-        @tracks.each do |track|
+      @beats = []
+      # @bars.each do |bar| 
+        # @tracks.each do |track|
+          voices_count = @version >= 5.0 ? 2 : 1
+          beats_count = @parser.read_integer
 
-        end
-      end
+          # voices_count.times do |voice_number|
+            beats_count.times do
+              beat = Beat.new(@parser, @version, @tracks[0]) # TODO: Don't forget to change @tracks[0] to track
+              @beats << beat
+            end
+          # end
+
+          # Padding
+          @parser.skip_byte if @version >= 5.0
+        # end
+      # end
     end
 
     def parse field

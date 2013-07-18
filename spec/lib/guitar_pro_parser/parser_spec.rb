@@ -3,6 +3,13 @@ require 'spec_helper'
 describe GuitarProParser::Parser do
   subject { GuitarProParser::Parser.new test_tab_path 5}
   
+  describe '.to_bitmask' do
+    it 'converts integer to bitmask' do
+      result = described_class.to_bitmask 7
+      result.should == [1, 1, 1, 0, 0, 0, 0, 0]
+    end
+  end
+  
   describe '#read_byte' do
     let!(:result) { subject.read_byte }
 
@@ -89,13 +96,6 @@ describe GuitarProParser::Parser do
     it 'changes offset' do
       subject.skip_byte
       subject.offset.should == 1
-    end
-  end
-
-  describe '#to_bitmask' do
-    it 'converts integer to bitmask' do
-      result = subject.to_bitmask 7
-      result.should == [1, 1, 1, 0, 0, 0, 0, 0]
     end
   end
 end

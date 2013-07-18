@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-def track test_type
+def test_track(test_type)
   refs = {
     n1: 0,
     n2: 1,
@@ -67,7 +67,7 @@ describe GuitarProParser::Track do
   shared_examples 'Any Guitar Pro version' do
     
     context 'track 1' do
-      track :n1
+      test_track :n1
       it_behaves_like 'default track of any version'
       its(:name) { should == 'Track 1' }
       its(:midi_channel) { should == 1 }
@@ -75,7 +75,7 @@ describe GuitarProParser::Track do
     end
 
     context 'track 2' do
-      track :n2
+      test_track :n2
       it_behaves_like 'default track of any version'
       its(:name) { should == 'Track 2' }
       its(:midi_channel) { should == 3 }
@@ -83,7 +83,7 @@ describe GuitarProParser::Track do
     end
 
     context 'percussion' do
-      track :percussion
+      test_track :percussion
       its(:drums) { should == true }
       its(:name) { should == 'Percussion' }
       its(:midi_channel) { should == 10 }
@@ -91,42 +91,42 @@ describe GuitarProParser::Track do
     end
 
     context '7 strings guitar' do
-      track :seven_strings
+      test_track :seven_strings
       its(:name) { should == '7 string guitar' }
       its(:strings_count) { should == 7 }
       its(:strings_tuning) { should == %w(E5 B4 G4 D4 A3 E3 B2) }
     end
 
     context 'green colored' do
-      track :green_colored
+      test_track :green_colored
       its(:color) { should == [0, 255, 0] }
     end
 
     context 'drop D' do
-      track :drop_d
+      test_track :drop_d
       its(:strings_count) { should == 6 }
       its(:strings_tuning) { should == %w(D5 A4 F4 C4 G3 C3) } # actually it is drop C
     end
 
     context 'with more frets' do
-      track :with_more_frets
+      test_track :with_more_frets
       its(:frets_count) { should == 27 }
     end
 
     context 'with capo' do
-      track :with_capo
+      test_track :with_capo
       its(:capo) { should == 3 }
     end
 
     context '12 strings' do
-      track :twelve_strings
+      test_track :twelve_strings
       its(:name) { should == '12 stringed guitar' }
       its(:strings_count) { should == 6 }
       its(:twelve_stringed_guitar) { should == true }
     end
 
     context 'banjo' do
-      track :banjo
+      test_track :banjo
       its(:name) { should == 'Banjo' }
       its(:strings_count) { should == 5 }
       its(:banjo) { should == true }
@@ -140,21 +140,21 @@ describe GuitarProParser::Track do
     it_behaves_like 'Any Guitar Pro version'
 
     context 'track 1' do
-      track :n1
+      test_track :n1
       it_behaves_like 'default track v5'
       its(:instrument_effect_1) { should == 'American Clean - Pi Distortion' }
       its(:instrument_effect_2) { should == 'Amp Tones' }      
     end
 
     context 'track 2' do
-      track :n2
+      test_track :n2
       it_behaves_like 'default track v5'
       its(:instrument_effect_1) { should == 'Acoustic - Default' }
       its(:instrument_effect_2) { should == 'Acoustic Tones' }
     end
 
     context 'with all styles' do
-      track :with_all_styles
+      test_track :with_all_styles
       its(:diagrams_below_the_standard_notation) { should == true }
       its(:show_rythm_with_tab) { should == true }
       its(:force_horizontal_beams) { should == true }
@@ -164,39 +164,39 @@ describe GuitarProParser::Track do
     end
 
     context 'auto let ring' do
-      track :auto_let_ring
+      test_track :auto_let_ring
       its(:auto_let_ring) { should == true }
     end
     
     context 'auto brush' do
-      track :auto_brush
+      test_track :auto_brush
       its(:auto_brush) { should == true }
     end
 
     context 'with custom midi bank' do
-      track :with_custom_midi_bank
+      test_track :with_custom_midi_bank
       its(:midi_bank) { should == 5 }
     end
 
     context 'with human playing' do
-      track :with_human_playing
+      test_track :with_human_playing
       its(:human_playing) { should == 15 }
     end
 
     pending 'with auto accentuation'
 
     context 'with equalizer' do
-      track :with_equalizer
+      test_track :with_equalizer
       its(:equalizer) { should == [226, 60, 231, 246] }
     end
 
     context 'with custom sound bank' do
-      track :with_custom_sound_bank
+      test_track :with_custom_sound_bank
       its(:sound_bank) { should == 2 }
     end
 
     context 'muted' do
-      track :muted
+      test_track :muted
       its(:mute_playback) { should == true }
     end
   end  
@@ -206,7 +206,7 @@ describe GuitarProParser::Track do
     it_behaves_like 'Any Guitar Pro version'
 
     context 'muted' do
-      track :muted
+      test_track :muted
       its(:mute_playback) { should == false }
     end
   end  
