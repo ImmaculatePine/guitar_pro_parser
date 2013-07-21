@@ -86,37 +86,37 @@ describe GuitarProParser::Song do
     its(:version) { should == 4.06 }
   end
 
-  # describe 'Musical directions' do
-  #   subject { GuitarProParser::Song.new test_tab_path 5, 'test_musical_directions' }
+  describe 'Musical directions' do
+    subject { GuitarProParser::Song.new test_tab_path 5, 'test_musical_directions' }
 
-  #   it 'has proper musical directions' do
-  #     correct_values = {
-  #       coda: 1, 
-  #       double_coda: 2, 
-  #       segno: 3, 
-  #       segno_segno: 4, 
-  #       fine: 5, 
-  #       da_capo: 6,
-  #       da_capo_al_coda: 7, 
-  #       da_capo_al_double_coda: 8, 
-  #       da_capo_al_fine: 9,
-  #       da_segno: 10, 
-  #       da_segno_segno: 11, 
-  #       da_segno_al_coda: 12, 
-  #       da_segno_al_double_coda: 13,
-  #       da_segno_segno_al_coda: 14,
-  #       da_segno_segno_al_double_coda: 15, 
-  #       da_segno_al_fine: 16, 
-  #       da_segno_segno_al_fine: 17,
-  #       da_coda: 18, 
-  #       da_double_coda: 19
-  #     }
+    it 'has proper musical directions' do
+      correct_values = {
+        coda: 1, 
+        double_coda: 2, 
+        segno: 3, 
+        segno_segno: 4, 
+        fine: 5, 
+        da_capo: 6,
+        da_capo_al_coda: 7, 
+        da_capo_al_double_coda: 8, 
+        da_capo_al_fine: 9,
+        da_segno: 10, 
+        da_segno_segno: 11, 
+        da_segno_al_coda: 12, 
+        da_segno_al_double_coda: 13,
+        da_segno_segno_al_coda: 14,
+        da_segno_segno_al_double_coda: 15, 
+        da_segno_al_fine: 16, 
+        da_segno_segno_al_fine: 17,
+        da_coda: 18, 
+        da_double_coda: 19
+      }
 
-  #     subject.musical_directions.each do |key, value|
-  #       value.should == correct_values[key]
-  #     end
-  #   end
-  # end
+      subject.musical_directions.each do |key, value|
+        value.should == correct_values[key]
+      end
+    end
+  end
 
   # TODO: Create GP3 file for testing purposes
   # describe 'Guitar Pro 3' do

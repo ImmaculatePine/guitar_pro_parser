@@ -12,8 +12,8 @@ module GuitarProParser
     REST_TYPES = { '0' => :empty_beat, 
                    '2' => :rest }
 
-    DURATIONS = { '-2' => :whole,
-                  '-1' => :half,
+    DURATIONS = { '254' => :whole, # TODO: I don't know why
+                  '255' => :half,  # these 2 keys are not -2 and -1
                    '0' => :quarter,
                    '1' => :eighth,
                    '2' => :sixteens,
