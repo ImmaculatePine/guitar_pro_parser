@@ -1,8 +1,7 @@
+require "guitar_pro_parser/parser"
+require "guitar_pro_parser/guitar_pro_helper"
+
 module GuitarProParser
-
-  require "guitar_pro_parser/parser"
-  require "guitar_pro_parser/guitar_pro_helper"
-
   # This class represents settings of tracks.
   #
   # == Attributes
@@ -156,7 +155,7 @@ module GuitarProParser
     def parse_strings_tuning
       @strings_tuning = []
       @strings_count.times do
-        @strings_tuning << (digit_to_note @parser.read_integer)
+        @strings_tuning << (digit_to_note(@parser.read_integer))
       end
 
       # Skip padding if there are less than 7 strings

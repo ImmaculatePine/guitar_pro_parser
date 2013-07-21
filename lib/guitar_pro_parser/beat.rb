@@ -7,6 +7,7 @@ module GuitarProParser
 
   class Beat
 
+    include GuitarProHelper
     extend GuitarProHelper
 
     REST_TYPES = { '0' => :empty_beat, 

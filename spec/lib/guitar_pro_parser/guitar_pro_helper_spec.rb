@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'guitar_pro_parser/guitar_pro_helper'
+
 include GuitarProHelper
 
 describe GuitarProHelper do

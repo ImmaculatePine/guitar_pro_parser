@@ -1,6 +1,6 @@
-module GuitarProParser
+require 'guitar_pro_parser/guitar_pro_helper'
 
-  require 'guitar_pro_parser/guitar_pro_helper'
+module GuitarProParser
   
   # This class represents bars as containers of notes.
   #
@@ -21,7 +21,7 @@ module GuitarProParser
       @settings = settings
       @voices = {}
       voices_count = version >= 5.0 ? 2 : 1
-      voices_count.times { |n| @voices[VOICES.fetch(n)] = [] }
+      voices_count.times { |n| @voices[GuitarProHelper::VOICES.fetch(n)] = [] }
     end
 
     # Returns selected beat of selected voice

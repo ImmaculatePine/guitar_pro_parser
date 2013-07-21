@@ -4,8 +4,6 @@ module GuitarProParser
   require "guitar_pro_parser/guitar_pro_helper"
 
   class ChordDiagram
-
-    include GuitarProHelper
     
     attr_reader :beat    
     attr_reader :name, :start_fret, :frets

@@ -17,8 +17,38 @@ Or install it yourself as:
     $ gem install guitar_pro_parser
 
 ## Usage
+  
+  Require the library:
 
-TODO: Write usage instructions here
+    require 'guitar_pro_parser'
+
+  Read the file:
+
+    song = GuitarProParser.read_file('path_to_file')
+
+  Now you can access song's properties like that:
+
+    # Get some attributes of the song
+    puts song.title
+    puts song.artist
+    puts song.bpm
+
+    # Or read notes
+    song.tracks.each do |track|
+      track.bars.each do |bar|
+        puts "There are #{bar.voices[:lead].count} beats in lead voice"
+        puts "There are #{bar.voices[:bass].count} beats in bass voice" unless bar.voices[:bass].nil?
+
+        bar.voice[:lead] do |beat|
+          beat.strings.each do |string, note|
+            puts "Play #{string} string on the #{note.fret} fret."
+            puts "Note's duration is #{note.duration}"
+          end
+        end
+      end
+    end
+
+  TODO: Write documentation for all attributes.
 
 ## Contributing
 

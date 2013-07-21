@@ -44,7 +44,7 @@ module GuitarProHelper
     points_coint.times do
       time = parser.read_integer
       pitch_alteration = parser.read_integer
-      vibrato_type = VIBRATO_TYPES.fetch(@parser.read_byte)
+      vibrato_type = VIBRATO_TYPES.fetch(parser.read_byte)
       result[:points] << { time: time, pitch_alteration: pitch_alteration, vibrato_type: vibrato_type }
     end
 
