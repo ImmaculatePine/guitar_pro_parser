@@ -6,6 +6,12 @@ module GuitarProHelper
   BEND_TYPES = [:none, :bend, :bend_and_release, :bend_release_bend, :prebend, :prebend_and_release,
                 :tremolo_dip, :tremolo_dive, :tremolo_release_up, :tremolo_inverted_dip, :tremolo_return, :tremolo_release_down]
   VIBRATO_TYPES = [:none, :fast, :average, :slow]
+  MUSICAL_DIRECTIONS = [:coda, :double_coda, :segno, :segno_segno, :fine, :da_capo,
+                      :da_capo_al_coda, :da_capo_al_double_coda, :da_capo_al_fine,
+                      :da_segno, :da_segno_al_coda, :da_segno_al_double_coda,
+                      :da_segno_al_fine, :da_segno_segno, :da_segno_segno_al_coda,
+                      :da_segno_segno_al_double_coda, :da_segno_segno_al_fine,
+                      :da_coda, :da_double_coda]
 
   # Macros to create boolean instance variables' getters like this:
   #   attr_boolean :complete

@@ -1,9 +1,8 @@
-module GuitarProParser
+require 'guitar_pro_parser/guitar_pro_helper'
+require 'guitar_pro_parser/chord_diagram'
+require 'guitar_pro_parser/note'
 
-  require "guitar_pro_parser/parser"
-  require "guitar_pro_parser/guitar_pro_helper"
-  require "guitar_pro_parser/chord_diagram"
-  require "guitar_pro_parser/note"
+module GuitarProParser
 
   class Beat
 
@@ -69,7 +68,7 @@ module GuitarProParser
       # Bit 5:        This beat is an N-tuplet
       # Bit 6:        Is a rest beat
       # Bit 7 (MSB):  Unused (set to 0)
-      bits = Parser.to_bitmask(@parser.read_byte, :booleans)
+      bits = @parser.read_bitmask
       @dotted = bits[0]
       @has_chord_diagram = bits[1]
       @has_text = bits[2]
@@ -95,7 +94,7 @@ module GuitarProParser
       #  Bit 1:     Pickstroke
       #  Bit 2:     Tremolo bar
       #  Bits 3-7:  Unused (set to 0)
-      bits = Parser.to_bitmask(@parser.read_byte, :booleans)
+      bits = @parser.read_bitmask
       add_effect(:vibrato) if bits[0]
       add_effect(:wide_vibrato) if bits[1]
       add_effect(:natural_harmonic) if bits[2]
@@ -105,7 +104,7 @@ module GuitarProParser
       add_effect(:stroke_effect) if bits[6]
 
       if @version >= 4.0
-        bits = Parser.to_bitmask(@parser.read_byte, :booleans)
+        bits = @parser.read_bitmask
         add_effect(:rasguedo) if bits[0]
         add_effect(:pickstroke) if bits[1]
         add_effect(:tremolo_bar) if bits[2]
@@ -198,7 +197,7 @@ module GuitarProParser
     end
 
     def parse_strings
-      strings_bitmask = Parser.to_bitmask(@parser.read_byte, :booleans)
+      strings_bitmask = @parser.read_bitmask
       used_strings = []
       (0..6).to_a.reverse.each { |i| used_strings << strings_bitmask[i] }
 
@@ -216,13 +215,13 @@ module GuitarProParser
       # Bit 5:    8vb (down one octave)
       # Bit 6:    15ma (up two octaves)
       # Bit 7:    Unknown/unused
-      bits1 = Parser.to_bitmask(@parser.read_byte, :booleans)
+      bits1 = @parser.read_bitmask
 
       # Bit 8:    15mb (down two octaves)
       # Bits 9-10:  Unknown/unused
       # Bit 11:   An extra unknown data byte follows this bitmask
       # Bits 12-15: Unknown/unused
-      bits2 = Parser.to_bitmask(@parser.read_byte, :booleans)
+      bits2 = @parser.read_bitmask
 
       @transpose = '8va' if bits1[4]
       @transpose = '8vb' if bits1[5]

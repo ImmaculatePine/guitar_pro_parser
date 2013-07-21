@@ -3,7 +3,6 @@ require 'spec_helper'
 describe GuitarProParser::Song do
 
   shared_examples 'Any Guitar Pro version' do
-    its(:file_path) { should_not be_nil }
     its(:title) { should == 'Song Title' }
     its(:subtitle) { should == 'Song Subtitle' }
     its(:artist) { should == 'Artist' }
@@ -12,11 +11,15 @@ describe GuitarProParser::Song do
     its(:transcriber) { should == 'Transcriber' }
     its(:instructions) { should == 'Instructions' }
     its(:notices) { should include('Notice 1', 'Notice 2', 'Notice 3') }
+    its(:master_volume) { should == 100 }
+    its(:tempo) { should == 'Moderate' }
     its(:bpm) { should == 120 }
-    its('midi_channels.count') { should == 64 }
+    its(:page_setup) { should be_kind_of GuitarProParser::PageSetup }
+    its('channels.count') { should == 64 }
     pending 'midi channels data'
-    its(:bars_count) { should == 18 }
-    its(:tracks_count) { should == 10 }
+    its('musical_directions.count') { should == 19 }
+    its(:equalizer) { should == Array.new(11, 0) }
+
     its('bars_settings.count') { should == 18 }
     its('tracks.count') { should == 10 }
   end
@@ -35,14 +38,9 @@ describe GuitarProParser::Song do
   end
 
   shared_examples 'Guitar Pro 3 and 4' do
-    its(:lyricist) { should be_nil }
+    its(:lyricist) { should == '' }
     its(:triplet_feel) { should == true }
-    its(:master_volume) { should be_nil }
-    its(:equalizer) { should be_nil }
-    its(:page_setup) { should be_nil}
-    its(:tempo) { should be_nil }
-    its(:musical_directions) { should be_nil }
-    its(:master_reverb) { should be_nil }
+    its(:master_reverb) { should == 0 }
   end
 
 
@@ -54,18 +52,7 @@ describe GuitarProParser::Song do
 
     its(:version) { should == 5.1 }
     its(:lyricist) { should == 'Lyricist' }
-    its(:triplet_feel) { should be_nil }
-    its(:master_volume) { should == 100 }
-    
-    it 'should determine equalizer settings' do
-      equalizer = []
-      11.times { equalizer << 0 }
-      subject.equalizer.should == equalizer
-    end
-
-    its(:page_setup) { should be_kind_of GuitarProParser::PageSetup }
-    its(:tempo) { should == 'Moderate' }
-    its('musical_directions.count') { should == 19 }
+    its(:triplet_feel) { should == false }
     
     it 'has proper musical directions' do
       subject.musical_directions.each do |key, value|

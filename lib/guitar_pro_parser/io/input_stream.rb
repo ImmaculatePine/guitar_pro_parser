@@ -1,28 +1,12 @@
 module GuitarProParser
 
-  class Parser
+  class InputStream
 
     INTEGER_LENGTH = 4
     SHORT_INTEGER_LENGTH = 2
     BYTE_LENGTH = 1
 
     attr_accessor :offset
-
-    def self.to_bitmask(n, as = :digits, length = 8)
-      bits = []
-      
-      n.to_s(2).each_char { |bit| bits << bit.to_i }
-      bits = bits.reverse
-      bits << 0 while bits.count < length
-
-      if as == :booleans
-        booleans = []
-        bits.each { |bit| booleans << !bit.zero? }
-        booleans
-      else
-        bits
-      end
-    end
 
     def initialize file_path
       @file_path = file_path
@@ -55,6 +39,18 @@ module GuitarProParser
       value = IO.binread(@file_path, length, @offset)
       increment_offset(length)
       value
+    end
+
+    def read_bitmask
+      bits = []
+      value = read_byte
+      value.to_s(2).each_char { |bit| bits << bit.to_i }
+      bits = bits.reverse
+      bits << 0 while bits.count < 8
+
+      booleans = []
+      bits.each { |bit| booleans << !bit.zero? }
+      booleans
     end
 
     # Reads data chunk from file.

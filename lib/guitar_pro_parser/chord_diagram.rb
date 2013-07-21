@@ -1,7 +1,6 @@
-module GuitarProParser
+require 'guitar_pro_parser/guitar_pro_helper'
 
-  require "guitar_pro_parser/parser"
-  require "guitar_pro_parser/guitar_pro_helper"
+module GuitarProParser
 
   class ChordDiagram
     

@@ -1,5 +1,4 @@
-require "guitar_pro_parser/parser"
-require "guitar_pro_parser/guitar_pro_helper"
+require 'guitar_pro_parser/guitar_pro_helper'
 
 module GuitarProParser
 
@@ -93,7 +92,7 @@ module GuitarProParser
       # Bit 6:    Accentuated note
       # Bit 7:    Right/Left hand fingering
 
-      bits = Parser.to_bitmask(@parser.read_byte, :booleans)
+      bits = @parser.read_bitmask
       # TODO: Find in Guitar Pro how to enable this feature
       @time_independent_duration = bits[0]
 
@@ -129,7 +128,7 @@ module GuitarProParser
       # Bit 3:    Let ring
       # Bit 4:    Grace note
       # Bits 5-7: Unused (set to 0)
-      bits = Parser.to_bitmask(@parser.read_byte, :booleans)
+      bits = @parser.read_bitmask
       @has_bend = bits[0]
       @has_hammer_or_pull = bits[1]
       @has_slide = bits[2]
@@ -147,7 +146,7 @@ module GuitarProParser
       # Bit 5:    Trill
       # Bit 6:    Vibrato
       # Bit 7 (MSB):  Unused (set to 0)
-      bits = Parser.to_bitmask(@parser.read_byte, :booleans)
+      bits = @parser.read_bitmask
       @staccato = bits[0]
       @palm_mute = bits[1]
       @tremolo = bits[2]
@@ -166,7 +165,7 @@ module GuitarProParser
       position = :before_the_beat
 
       if @version >= 5.0
-        bits = Parser.to_bitmask(@parser.read_byte, :booleans)
+        bits = @parser.read_bitmask
         dead = bits[0]
         position = :on_the_beat if bits[1]
       end

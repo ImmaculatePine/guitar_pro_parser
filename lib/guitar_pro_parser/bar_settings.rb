@@ -1,7 +1,5 @@
 module GuitarProParser
 
-  require "guitar_pro_parser/parser"
-
   # This class represents settings of bars (measures).
   #
   # == Attributes
@@ -60,9 +58,9 @@ module GuitarProParser
 
     TRIPLET_FEEL = [:no_triplet_feel, :triplet_8th, :triplet_16th]
 
-    def initialize parser, song, number
+    def initialize parser, version, number
       @parser = parser
-      @version = song.version
+      @version = version
 
       # The bar bitmask declares which parameters are defined for the bar:
       # Bit 0 (LSB):  Time signature change numerator (GP version >= 3), or start of repeat (GP version < 3)
@@ -73,11 +71,10 @@ module GuitarProParser
       # Bit 5:        Marker precense
       # Bit 6:        Key signature change
       # Bit 7 (MSB):  Double bar
-      bits = Parser.to_bitmask(@parser.read_byte)
+      bits = @parser.read_bitmask
       bits.count.times do |i|
         variable_name = "@#{BITMASK[i].to_s}"
-        value = !bits[i].zero?
-        instance_variable_set(variable_name, value)
+        instance_variable_set(variable_name, bits[i])
       end
 
       # Read time signature num and den if they present
@@ -158,8 +155,6 @@ module GuitarProParser
 
     def parse_number_of_alternate_ending
       if @has_number_of_alternate_ending
-        value = @parser.read_byte
-
         # In Guitar Pro 5 values is bitmask for creating array of alternate endings
         # Bit 0 - alt. ending #1
         # Bit 1 - alt. ending #2
@@ -171,12 +166,12 @@ module GuitarProParser
         # Anyway @number_of_alternate_ending is represented as array
         @number_of_alternate_ending = []
         if (@version >= 5.0)
-          bits = Parser.to_bitmask(value)
+          bits = @parser.read_bitmask
           bits.count.times do |i|
-            @number_of_alternate_ending << (i+1) if !bits[i].zero?
+            @number_of_alternate_ending << (i+1) if bits[i]
           end
         else
-            @number_of_alternate_ending << value
+            @number_of_alternate_ending << @parser.read_byte
         end
       end
 

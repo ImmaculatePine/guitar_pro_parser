@@ -1,14 +1,7 @@
 require 'spec_helper'
 
-describe GuitarProParser::Parser do
-  subject { GuitarProParser::Parser.new test_tab_path 5}
-  
-  describe '.to_bitmask' do
-    it 'converts integer to bitmask' do
-      result = described_class.to_bitmask 7
-      result.should == [1, 1, 1, 0, 0, 0, 0, 0]
-    end
-  end
+describe GuitarProParser::InputStream do
+  subject { GuitarProParser::InputStream.new(test_tab_path(5)) }
   
   describe '#read_byte' do
     let!(:result) { subject.read_byte }
@@ -59,6 +52,13 @@ describe GuitarProParser::Parser do
     let!(:result) { subject.read_string 10 }
   
     it_behaves_like 'read_string and read_chunk'
+  end
+
+  describe '#read_bitmask' do
+    let!(:result) { subject.read_bitmask }
+
+    its(:offset) { should == 1}
+    specify { result.should == [false, false, false, true, true, false, false, false] }
   end
 
   describe '#read_chunk' do

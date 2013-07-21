@@ -1,6 +1,3 @@
-require "guitar_pro_parser/parser"
-require "guitar_pro_parser/guitar_pro_helper"
-
 module GuitarProParser
   # This class represents settings of tracks.
   #
@@ -48,8 +45,6 @@ module GuitarProParser
   #        
   class Track
 
-    include GuitarProHelper
-
     # Track bitmask
     attr_reader :drums,
                 :twelve_stringed_guitar,
@@ -85,9 +80,9 @@ module GuitarProParser
     attr_accessor :bars
     
 
-    def initialize parser, song, number
+    def initialize parser, version, number
       @parser = parser
-      @version = song.version
+      @version = version
 
       @bars = []
 
@@ -99,14 +94,14 @@ module GuitarProParser
       # Bit 5:        Marked for muted playback
       # Bit 6:        Use RSE playback (track instrument option)
       # Bit 7:        Indicate tuning on the score (track properties)
-      bits = Parser.to_bitmask(@parser.read_byte)
-      @drums = !bits[0].zero?
-      @twelve_stringed_guitar = !bits[1].zero?
-      @banjo = !bits[2].zero?
-      @solo_playback = !bits[4].zero?
-      @mute_playback = !bits[5].zero?
-      @rse_playback = !bits[6].zero?
-      @indicate_tuning = !bits[7].zero?
+      bits = @parser.read_bitmask
+      @drums = bits[0]
+      @twelve_stringed_guitar = bits[1]
+      @banjo = bits[2]
+      @solo_playback = bits[4]
+      @mute_playback = bits[5]
+      @rse_playback = bits[6]
+      @indicate_tuning = bits[7]
      
       parse_name
       @strings_count = @parser.read_integer
@@ -180,13 +175,13 @@ module GuitarProParser
         # Bit 5:        Force channels 11 to 16
         # Bit 6:        Diagrams list on top of the score
         # Bit 7 (MSB):  Diagrams in the score
-        bits = Parser.to_bitmask(@parser.read_byte)
-        @diagrams_below_the_standard_notation = !bits[2].zero?
-        @show_rythm_with_tab = !bits[3].zero?
-        @force_horizontal_beams = !bits[4].zero?
-        @force_channels_11_to_16 = !bits[5].zero?
-        @diagrams_list_on_top_of_score = !bits[6].zero?
-        @diagrams_in_the_score = !bits[7].zero?
+        bits = @parser.read_bitmask
+        @diagrams_below_the_standard_notation = bits[2]
+        @show_rythm_with_tab = bits[3]
+        @force_horizontal_beams = bits[4]
+        @force_channels_11_to_16 = bits[5]
+        @diagrams_list_on_top_of_score = bits[6]
+        @diagrams_in_the_score = bits[7]
     end
 
     def parse_track_properties_2
@@ -196,10 +191,10 @@ module GuitarProParser
         # Bit 2:        Auto Brush
         # Bit 3:        Extend rhythmic inside the tab
         # Bits 4-7:     Unknown
-        bits = Parser.to_bitmask(@parser.read_byte)
-        @auto_let_ring = !bits[1].zero?
-        @auto_brush = !bits[2].zero?
-        @extend_rhytmic_inside_the_tab = !bits[3].zero?
+        bits = @parser.read_bitmask
+        @auto_let_ring = bits[1]
+        @auto_brush = bits[2]
+        @extend_rhytmic_inside_the_tab = bits[3]
     end
   end
 

@@ -1,10 +1,7 @@
 require 'spec_helper'
 
 describe GuitarProParser::PageSetup do
-  subject do
-    song = GuitarProParser::Song.new test_tab_path 5
-    song.page_setup
-  end
+  subject { GuitarProParser::Song.new(test_tab_path(5)).page_setup }
 
   its(:page_format_length) { should == 210 }
   its(:page_format_width) { should == 41 }
@@ -13,8 +10,6 @@ describe GuitarProParser::PageSetup do
   its(:top_margin) { should == 15 }
   its(:bottom_margin) { should == 10 }
   its(:score_size) { should == 100 }
-
-  its(:fields_bitmask) { should == [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] } # TODO
 
   its(:title) { should == '%TITLE%' }
   its(:subtitle) { should == '%SUBTITLE%' }
