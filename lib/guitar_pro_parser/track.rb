@@ -45,8 +45,8 @@ module GuitarProParser
   #                                                       (> 5.0 only)
   # * +instrument_effect_1+                   (string)    Track instrument effect 1 (> 5.0 only)
   # * +instrument_effect_2+                   (string)    Track instrument effect 2 (> 5.0 only)
-  #
-        
+  # * +bars+                                  (array)     Bars of this track
+  #        
   class Track
 
     include GuitarProHelper
@@ -82,11 +82,15 @@ module GuitarProParser
     attr_reader :midi_bank, :human_playing, :auto_accentuation,
                 :sound_bank, :equalizer,
                 :instrument_effect_1, :instrument_effect_2
+
+    attr_accessor :bars
     
 
     def initialize parser, song, number
       @parser = parser
       @version = song.version
+
+      @bars = []
 
       # Bit 0 (LSB):  Drums track
       # Bit 1:        12 stringed guitar track

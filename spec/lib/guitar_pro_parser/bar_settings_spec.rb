@@ -3,35 +3,35 @@ require 'spec_helper'
 describe GuitarProParser::BarSettings do
   
   shared_context 'shared bar 1' do
-    subject { song.bars[0] }
+    subject { song.bars_settings[0] }
   end
 
   shared_context 'shared bar 2' do
-    subject { song.bars[1] }
+    subject { song.bars_settings[1] }
   end
 
   shared_context 'shared bar 3' do
-    subject { song.bars[2] }
+    subject { song.bars_settings[2] }
   end
 
   shared_context 'shared 3/4 bar' do
-    subject { song.bars[6] }
+    subject { song.bars_settings[6] }
   end
 
   shared_context 'shared 5/8 bar' do
-    subject { song.bars[7] }
+    subject { song.bars_settings[7] }
   end
 
   shared_context 'shared has start of repeat' do
-    subject { song.bars[8] }
+    subject { song.bars_settings[8] }
   end
 
   shared_context 'shared has end of repeat' do
-    subject { song.bars[9] }
+    subject { song.bars_settings[9] }
   end
 
   shared_context 'shared has number of alternate ending' do
-    subject { song.bars[12] }
+    subject { song.bars_settings[12] }
   end
 
   shared_examples 'Any Guitar Pro version' do

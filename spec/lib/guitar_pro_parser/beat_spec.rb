@@ -5,7 +5,7 @@ describe GuitarProParser::Beat do
 
   shared_examples 'any Guitar Pro version' do
     context '1 beat, 1 bar, 1 track' do
-      subject { song.beats[0] }
+      subject { song.tracks[0].bars[0].get_beat(0) }
 
       its('dotted?') { should == false }
       its('has_chord_diagram?') { should == false }
@@ -28,14 +28,14 @@ describe GuitarProParser::Beat do
     end
 
     context '2 beat, 1 bar, 1 track' do
-      subject { song.beats[1] }
+      subject { song.tracks[0].bars[0].get_beat(1) }
       its(:text) { should == 'Second beat' }
       its('strings.count') { should == 1 }
       its(:strings) { should include '5' }
     end
 
     context '3 beat, 1 bar, 1 track' do
-      subject { song.beats[2] }
+      subject { song.tracks[0].bars[0].get_beat(2) }
       its(:text) { should == 'Third beat' }
       its('strings.count') { should == 1 }
       its(:strings) { should include '4' }

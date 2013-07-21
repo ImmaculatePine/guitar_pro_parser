@@ -8,7 +8,7 @@ def test_note(type)
   }
   beat_number = refs.fetch(type).fetch(0)
   string_number = refs.fetch(type).fetch(1)
-  subject { song.beats[beat_number].strings[string_number] }
+  subject { song.tracks[0].bars[0].get_beat(beat_number).strings[string_number] }
 end
 
 describe GuitarProParser::Note do

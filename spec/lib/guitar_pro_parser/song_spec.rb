@@ -17,7 +17,7 @@ describe GuitarProParser::Song do
     pending 'midi channels data'
     its(:bars_count) { should == 18 }
     its(:tracks_count) { should == 10 }
-    its('bars.count') { should == 18 }
+    its('bars_settings.count') { should == 18 }
     its('tracks.count') { should == 10 }
   end
 
