@@ -20,85 +20,23 @@ describe GuitarProParser::Note do
       test_note :first
 
       # Tested features
-      its('accentuated?') { should == false }
-      its('ghost?') { should == false }
-
-      its('has_fingering?') { should == false }
-      its(:left_hand_fingering) { should be_nil }
-      its(:right_hand_fingering) { should be_nil }
-
-      its('has_dynamic?') { should == false }
+      its(:accentuated) { should == false }
+      its(:ghost) { should == false }
+      its(:fingers) { should == { left: nil, right: nil } }
       its(:dynamic) { should == 'f' }
-
-      its('has_type?') { should == true }
       its(:type) { should == :normal }
-
       its(:fret) { should == 3 }
-
-      its('has_effects?') { should == false }
-
-      its('has_hammer_or_pull?') { should == false }
-
-      its('let_ring?') { should == false }
- 
-      its('has_bend?') { should == false }
+      its(:hammer_or_pull) { should == false }
+      its(:let_ring) { should == false }
       its(:bend) { should be_nil }
-
-      its('has_grace_note?') { should == false }
-      its(:grace_note) { should be_nil }
-
-      its('staccato?') { should == false }
-
-      its('palm_mute?') { should == false }
-
-      its('tremolo?') { should == false }
-      its(:tremolo_speed) { should be_nil }
-
-      its('has_slide?') { should == false }
+      its(:grace) { should be_nil }
+      its(:staccato) { should == false }
+      its(:palm_mute) { should == false }
+      its(:tremolo) { should be_nil }
       its(:slide) { should be_nil }
-      
-      its('has_harmonic?') { should == false }
       its(:harmonic) { should be_nil }
-
-      its('vibrato?') { should == false }
-
-      its('has_trill?') { should == false }
+      its(:vibrato) { should == false }
       its(:trill) { should be_nil }
-      
-
-      # Old version of test
-      # its('time_independent_duration?') { should == false }
-      # its('accentuated?') { should == false }
-      # its('ghost?') { should == false }
-      # its('has_effects?') { should == true }
-      # its('has_dynamic?') { should == false }
-      # its('has_type?') { should == true }
-      # its('has_fingering?') { should == false }
-
-      # its('has_bend?') { should == false }
-      # its('has_hammer_or_pull?') { should == false }
-      # its('has_slide?') { should == true }
-      # its('let_ring?') { should == false }
-      # its('has_grace_note?') { should == false }
-      # its('staccato?') { should == false }
-      # its('palm_mute?') { should == false }
-      # its('tremolo?') { should == true }
-      # its('has_harmonic?') { should == true }
-      # its('has_trill?') { should == false }
-      # its('vibrato?') { should == false }
-
-      # its(:type) { should == :normal }
-      # its(:dynamic) { should == 'f' }
-      
-      # its(:left_hand_fingering) { should be_nil }
-      # its(:right_hand_fingering) { should be_nil }
-
-      # its(:bend) { should be_nil }
-      # its(:grace_note) { should be_nil }
-      # its(:tremolo_speed) { should == 32 }
-      # its(:slide) { should == :shift_slide }
-      # its(:trill) { should be_nil }
-   
     end
 
   end

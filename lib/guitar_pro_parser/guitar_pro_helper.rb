@@ -5,7 +5,7 @@ module GuitarProHelper
   FINGERS = [:thumb, :index, :middle, :ring, :pinky]
   BEND_TYPES = [:none, :bend, :bend_and_release, :bend_release_bend, :prebend, :prebend_and_release,
                 :tremolo_dip, :tremolo_dive, :tremolo_release_up, :tremolo_inverted_dip, :tremolo_return, :tremolo_release_down]
-  VIBRATO_TYPES = [:none, :fast, :average, :slow]
+  BEND_VIBRATO_TYPES = [:none, :fast, :average, :slow]
   MUSICAL_DIRECTIONS = [:coda, :double_coda, :segno, :segno_segno, :fine, :da_capo,
                       :da_capo_al_coda, :da_capo_al_double_coda, :da_capo_al_fine,
                       :da_segno, :da_segno_al_coda, :da_segno_al_double_coda,
@@ -25,6 +25,18 @@ module GuitarProHelper
   STRING_EFFECTS = [:tremolo_bar, :tapping, :slapping, :popping]
   STROKE_EFFECT_SPEEDS = [:none, 128, 64, 32, 16, 8, 4]
   STROKE_DIRECTIONS = [:none, :up, :down]
+  NOTE_TYPES = [:normal, :tie, :dead]
+  NOTE_DYNAMICS = %w(ppp pp p mp mf f ff fff)
+  GRACE_NOTE_TRANSITION_TYPES = [:none, :slide, :bend, :hammer]
+  GRACE_NOTE_DURATIONS = { '3' => 16, '2' => 32, '1' => 64 }
+  TREMOLO_PICKING_SPEEDS = { '3' => 32, '2' => 16, '1' => 8 }
+  
+  SLIDE_TYPES = [:no_slide, :shift_slide, :legato_slide, :slide_out_and_downwards, :slide_out_and_upwards, :slide_in_from_below, :slide_in_from_above]
+  MAP_SLIDE_TYPES_GP5 = { '0'=>0, '1'=>1, '2'=>2, '4'=>3, '8'=>4, '16'=>5, '32'=>6 }
+  MAP_SLIDE_TYPES_GP4 = { '-2'=>0, '-1'=>1, '0'=>2, '1'=>3, '2'=>4, '3'=>5, '4'=>6 }
+  
+  HARMONIC_TYPES = [:none, :natural, :artificial, :tapped, :pinch, :semi]
+  TRILL_PERIODS = [4, 8, 16]
 
   # Macros to create boolean instance variables' getters like this:
   #   attr_boolean :complete
@@ -55,21 +67,6 @@ module GuitarProHelper
     "#{NOTES.fetch(note_index)}#{octave.to_s}"
   end
 
-  # TODO: Remove
-  def parse_bend(parser)
-    type = BEND_TYPES.fetch(parser.read_byte)
-    height = parser.read_integer
-    points_coint = parser.read_integer
-    result = { type: type, height: height, points: [] }
-    points_coint.times do
-      time = parser.read_integer
-      pitch_alteration = parser.read_integer
-      vibrato_type = VIBRATO_TYPES.fetch(parser.read_byte)
-      result[:points] << { time: time, pitch_alteration: pitch_alteration, vibrato_type: vibrato_type }
-    end
-
-    result
-  end
 
   # TODO: Create helper to convert number of increments of .1dB to float for equalizers
   

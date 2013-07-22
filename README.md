@@ -1,6 +1,7 @@
 # GuitarProParser
 
-TODO: Write a gem description
+It is a gem for Ruby that allows to read Guitar Pro files.
+Now it supports Guitar Pro 4 and 5 files. Version 3 should work but is not tested at all.
 
 ## Installation
 
@@ -48,7 +49,9 @@ Or install it yourself as:
       end
     end
 
-  TODO: Write documentation for all attributes.
+  All available methods and attributes could be found in the source code. :)
+  
+  TODO: Write documentation.
 
 ## Contributing
 

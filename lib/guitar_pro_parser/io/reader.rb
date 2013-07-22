@@ -384,7 +384,7 @@ module GuitarProParser
       (0..6).to_a.reverse.each { |i| used_strings << strings_bitmask[i] }
       7.times do |i|
         if used_strings[i]
-          note = Note.new(@input, @version)
+          note = Note.new
           read_note(note)
           beat.strings["#{i+1}"] = note
         end
@@ -481,14 +481,14 @@ module GuitarProParser
     end
 
     def read_bend
-      type = BEND_TYPES.fetch(@input.read_byte)
+      type = GuitarProHelper::BEND_TYPES.fetch(@input.read_byte)
       height = @input.read_integer
       points_coint = @input.read_integer
       result = { type: type, height: height, points: [] }
       points_coint.times do
         time = @input.read_integer
         pitch_alteration = @input.read_integer
-        vibrato_type = VIBRATO_TYPES.fetch(@input.read_byte)
+        vibrato_type = GuitarProHelper::BEND_VIBRATO_TYPES.fetch(@input.read_byte)
         result[:points] << { time: time, pitch_alteration: pitch_alteration, vibrato_type: vibrato_type }
       end
 
@@ -551,7 +551,171 @@ module GuitarProParser
     end
 
     def read_note(note)
+      # The note bitmask declares which parameters are defined for the note:
+      # Bit 0 (LSB):  Time-independent duration
+      # Bit 1:    Heavy Accentuated note
+      # Bit 2:    Ghost note
+      # Bit 3:    Note effects present
+      # Bit 4:    Note dynamic
+      # Bit 5:    Note type
+      # Bit 6:    Accentuated note
+      # Bit 7:    Right/Left hand fingering
+      bits = @input.read_bitmask
       
+      # TODO: Find in Guitar Pro how to enable this feature
+      note.time_independent_duration = bits[0]
+
+      # Guitar Pro 5 files has 'Heavy accentuated' (bit 1) and 'Accentuated' (bit 6) states.
+      # Guitar Pro 4 and less have only 'Accentuated' (bit 6) state.
+      # So the only supported option for note is just 'Accentuated'.
+      note.accentuated = bits[1] || bits[6]
+
+      note.ghost = bits[2]
+
+      has_effects = bits[3]
+      has_dynamic = bits[4]
+      has_type = bits[5]
+      has_fingering = bits[7]
+
+      note.type = GuitarProHelper::NOTE_TYPES.fetch(@input.read_byte - 1) if has_type
+
+      # Ignore time-independed duration data for Guitar Pro 4 and less
+      @input.skip_short_integer if @version < 5.0 && note.time_independent_duration
+
+      note.dynamic = GuitarProHelper::NOTE_DYNAMICS.fetch(@input.read_byte - 1) if has_dynamic
+      note.fret = @input.read_byte
+
+      if has_fingering
+        left_finger = @input.read_byte
+        right_finger = @input.read_byte
+
+        note.add_left_hand_finger(FINGERS.fetch(left_finger)) unless left_finger == -1
+        note.add_right_hand_finger(FINGERS.fetch(right_finger)) unless right_finger == -1
+      end
+
+      # Ignore time-independed duration data for Guitar Pro 5
+      @input.increment_offset 8 if @version >= 5.0 && note.time_independent_duration
+
+      # Skip padding
+      @input.skip_byte if @version >= 5.0
+
+      if has_effects
+        # The note effect 1 bitmask declares which effects are defined for the note:
+        # Bit 0 (LSB):  Bend present
+        # Bit 1:    Hammer on/Pull off from the current note
+        # Bit 2:    Slide from the current note (GP3 format version)
+        # Bit 3:    Let ring
+        # Bit 4:    Grace note
+        # Bits 5-7: Unused (set to 0)
+        bits = @input.read_bitmask
+        has_bend = bits[0]
+        hammer_or_pull = bits[1]
+        has_slide = bits[2]
+        let_ring = bits[3]
+        has_grace = bits[4]
+
+        note.hammer_or_pull = hammer_or_pull
+        note.let_ring = let_ring
+
+        has_tremolo = false
+        has_slide = false
+        has_harmonic = false
+        has_trill = false
+
+        if @version >= 4.0
+          # The note effect 2 bitmask declares more effects for the note:
+          # Bit 0 (LSB):  Note played staccato
+          # Bit 1:    Palm Mute
+          # Bit 2:    Tremolo Picking
+          # Bit 3:    Slide from the current note
+          # Bit 4:    Harmonic note
+          # Bit 5:    Trill
+          # Bit 6:    Vibrato
+          # Bit 7 (MSB):  Unused (set to 0)
+          bits = @input.read_bitmask
+          staccato = bits[0]
+          palm_mute = bits[1]
+          has_tremolo = bits[2]
+          has_slide = bits[3]
+          has_harmonic = bits[4]
+          has_trill = bits[5]
+          vibrato = bits[6]
+
+          note.staccato = staccato
+          note.palm_mute = palm_mute
+          note.vibrato = vibrato
+        end
+
+        note.bend = read_bend if has_bend
+
+        read_grace(note) if has_grace
+        note.add_tremolo(GuitarProHelper::TREMOLO_PICKING_SPEEDS.fetch(@input.read_byte.to_s)) if has_tremolo
+
+        if has_slide
+          value = @input.read_byte.to_s
+          # TODO: Check if there is difference between GP4 and GP5
+          note.slide = GuitarProHelper::SLIDE_TYPES.fetch(GuitarProHelper::MAP_SLIDE_TYPES_GP5.fetch(value))
+        end
+
+        read_harmonic(note) if has_harmonic
+
+        if has_trill
+          fret = @input.read_byte
+          period = GuitarProHelper::TRILL_PERIODS.fetch(@input.read_byte)
+          note.add_trill(fret, period)
+        end
+      end
+    end
+
+    def read_grace(note)
+      fret = @input.read_byte
+      dynamic = GuitarProHelper::NOTE_DYNAMICS.fetch(@input.read_byte - 1)
+      transition = GuitarProHelper::GRACE_NOTE_TRANSITION_TYPES.fetch(@input.read_byte)
+      duration = GuitarProHelper::GRACE_NOTE_DURATIONS.fetch(@input.read_byte.to_s)
+      dead = false
+      position = :before_the_beat
+
+      if @version >= 5.0
+        bits = @input.read_bitmask
+        dead = bits[0]
+        position = :on_the_beat if bits[1]
+      end
+
+      note.add_grace(fret, dynamic, transition, duration, dead, position)
+    end
+
+    def read_harmonic(note)
+      type = nil
+      harmonic_type_index = @input.read_byte
+      if @version >= 5.0
+        type = GuitarProHelper::HARMONIC_TYPES.fetch(harmonic_type_index)
+      else
+        map_of_gp4_harmonics = { '0' => 0,
+                                 '1' => 1,
+                                 '15' => 2,
+                                 '17' => 2,
+                                 '22' => 2,
+                                 '3' => 3,
+                                 '4' => 4,
+                                 '5' => 5 }
+        type = GuitarProHelper::HARMONIC_TYPES.fetch(map_of_gp4_harmonics[harmonic_type_index.to_s])
+      end
+      
+      note.add_harmonic(type)
+
+      # Guitar Pro 5 has additional data about artificial and tapped harmonics
+      # But Guitar Pro 4 and less have not this data so we'll skip it now
+      if @version >= 5.0
+        case type
+        when :artificial
+          # Note (1 byte), note type (1 byte) and harmonic octave (1 byte)
+          # E.g. C# 15ma
+          @input.increment_offset(3)
+        when :tapped
+          # Tapped fret (1 byte)
+          @input.skip_byte
+        end
+      end
     end
 
   end
