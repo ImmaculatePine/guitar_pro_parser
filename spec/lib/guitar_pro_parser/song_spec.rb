@@ -52,7 +52,7 @@ describe GuitarProParser::Song do
 
     its(:version) { should == 5.1 }
     its(:lyricist) { should == 'Lyricist' }
-    its(:triplet_feel) { should == false }
+    its(:triplet_feel) { should == true }
     
     it 'has proper musical directions' do
       subject.musical_directions.each do |key, value|

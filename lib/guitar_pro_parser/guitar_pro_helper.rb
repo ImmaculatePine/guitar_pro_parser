@@ -12,6 +12,7 @@ module GuitarProHelper
                       :da_segno_al_fine, :da_segno_segno, :da_segno_segno_al_coda,
                       :da_segno_segno_al_double_coda, :da_segno_segno_al_fine,
                       :da_coda, :da_double_coda]
+  TRIPLET_FEEL = [:no_triplet_feel, :triplet_8th, :triplet_16th]
 
   # Macros to create boolean instance variables' getters like this:
   #   attr_boolean :complete

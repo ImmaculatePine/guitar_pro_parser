@@ -41,6 +41,7 @@ module GuitarProParser
       value
     end
 
+    # TODO: Refactor
     def read_bitmask
       bits = []
       value = read_byte

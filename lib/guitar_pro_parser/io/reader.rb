@@ -3,7 +3,6 @@ require 'guitar_pro_parser/guitar_pro_helper'
 
 # TODO: Maybe I should move this requires to song
 require "guitar_pro_parser/bar"
-require "guitar_pro_parser/bar_settings"
 require "guitar_pro_parser/track"
 
 module GuitarProParser
@@ -163,8 +162,90 @@ module GuitarProParser
 
     def read_bars_settings(count)
       count.times do |i|
-        @song.bars_settings << BarSettings.new(@input, @version, i)
+        bars_settings = @song.add_bar_settings
+        
+        bits = @input.read_bitmask
+        has_new_time_signature_numerator = bits[0]
+        has_new_time_signature_denominator = bits[1]
+        bars_settings.has_start_of_repeat = bits[2]
+        bars_settings.has_end_of_repeat = bits[3]
+        has_alternate_endings = bits[4]
+        has_marker = bits[5]
+        has_new_key_signature = bits[6]
+        bars_settings.double_bar = bits[7]
+
+        time_signature_numerator = @input.read_byte if has_new_time_signature_numerator
+        time_signature_denominator = @input.read_byte if has_new_time_signature_denominator
+        beam_eight_notes_by_values = []
+
+        if bars_settings.has_end_of_repeat
+          bars_settings.repeats_count = @input.read_byte 
+
+          # Version 5 of the format has slightly different counting for repeats
+          bars_settings.repeats_count = bars_settings.repeats_count - 1 if @version >= 5.0
+        end
+
+        # Read number of alternate ending and marker
+        # Their order differs depending on Guitar Pro version
+        if @version < 5.0
+          read_alternate_endings(bars_settings) if has_alternate_endings
+          read_marker(bars_settings) if has_marker
+        else
+          read_marker(bars_settings) if has_marker
+          read_alternate_endings(bars_settings) if has_alternate_endings
+        end
+
+        # Read new key signature if it changed
+        if has_new_key_signature
+          key = @input.read_byte
+          scale = @input.read_boolean ? :minor : :major
+          bars_settings.set_new_key_signature(key, scale)
+        end
+
+        # Read specific Guitar Pro 5 data
+        if @version >= 5.0
+          # Read beaming 8th notes by values if there is new time signature
+          if has_new_time_signature_numerator || has_new_time_signature_denominator
+            4.times { beam_eight_notes_by_values << @input.read_byte }
+          end
+
+          # If a GP5 file doesn't define an alternate ending here, ignore a byte of padding
+          @input.skip_byte unless has_alternate_endings
+          
+          # Read triplet feel
+          bars_settings.triplet_feel = GuitarProHelper::TRIPLET_FEEL[@input.read_byte]
+          @song.triplet_feel = true if bars_settings.triplet_feel
+          
+          # Skip byte of padding
+          @input.skip_byte
+        end
+
+        bars_settings.set_new_time_signature(time_signature_numerator, time_signature_denominator, beam_eight_notes_by_values) if has_new_time_signature_numerator || has_new_time_signature_denominator
       end
+    end
+
+    def read_alternate_endings(bars_settings)
+      # In Guitar Pro 5 values is bitmask for creating array of alternate endings
+      # Bit 0 - alt. ending #1
+      # Bit 1 - alt. ending #2
+      # ...
+      # Bit 7 - alt. ending #8
+      #
+      # In Guitar Pro 4 and less value is a digit.
+      if (@version >= 5.0)
+        bits = @input.read_bitmask
+        bits.count.times { |i| bars_settings.alternate_endings << (i+1) if bits[i] }
+      else
+          bars_settings.alternate_endings << @input.read_byte
+      end
+    end
+
+    def read_marker(bars_settings)
+      name = @input.read_chunk
+      color = []
+      3.times { color << @input.read_byte }
+      bars_settings.set_marker(name, color)      
+      @input.skip_byte
     end
 
     def read_tracks(count)

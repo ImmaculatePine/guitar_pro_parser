@@ -1,7 +1,9 @@
 require 'guitar_pro_parser/io/reader'
 
 require 'guitar_pro_parser/guitar_pro_helper'
+
 require 'guitar_pro_parser/page_setup'
+require "guitar_pro_parser/bar_settings"
 
 module GuitarProParser
   
@@ -11,7 +13,6 @@ module GuitarProParser
   #
   # == Attributes
   #
-  # All attributes are read-only
   #
   # * +version+       (float)   Version of Guitar Pro
   # * +title+         (string)
@@ -81,7 +82,7 @@ module GuitarProParser
       @transcriber = ''
       @instructions = ''
       @notices = ''
-      @triplet_feel = false
+      @triplet_feel = :no_triplet_feel
       @lyrics_track = 0
       @lyrics = []
       @master_volume = 100
@@ -100,6 +101,11 @@ module GuitarProParser
 
       # Read data from file
       Reader.new(self, file_path) unless file_path.nil?
+    end
+
+    def add_bar_settings
+      @bars_settings << BarSettings.new
+      @bars_settings.last
     end
 
   end
