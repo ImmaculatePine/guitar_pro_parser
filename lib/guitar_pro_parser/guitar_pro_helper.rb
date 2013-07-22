@@ -13,6 +13,18 @@ module GuitarProHelper
                       :da_segno_segno_al_double_coda, :da_segno_segno_al_fine,
                       :da_coda, :da_double_coda]
   TRIPLET_FEEL = [:no_triplet_feel, :triplet_8th, :triplet_16th]
+  REST_TYPES = { '0' => :empty_beat, 
+                 '2' => :rest }
+  DURATIONS = { '254' => :whole, # TODO: I don't know why
+                '255' => :half,  # these 2 keys are not -2 and -1
+                 '0' => :quarter,
+                 '1' => :eighth,
+                 '2' => :sixteens,
+                 '3' => :thirty_second,
+                 '4' => :sixty_fourth }
+  STRING_EFFECTS = [:tremolo_bar, :tapping, :slapping, :popping]
+  STROKE_EFFECT_SPEEDS = [:none, 128, 64, 32, 16, 8, 4]
+  STROKE_DIRECTIONS = [:none, :up, :down]
 
   # Macros to create boolean instance variables' getters like this:
   #   attr_boolean :complete
@@ -43,6 +55,7 @@ module GuitarProHelper
     "#{NOTES.fetch(note_index)}#{octave.to_s}"
   end
 
+  # TODO: Remove
   def parse_bend(parser)
     type = BEND_TYPES.fetch(parser.read_byte)
     height = parser.read_integer

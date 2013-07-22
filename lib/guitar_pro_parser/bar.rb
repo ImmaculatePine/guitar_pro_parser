@@ -1,5 +1,3 @@
-require 'guitar_pro_parser/guitar_pro_helper'
-
 module GuitarProParser
   
   # This class represents bars as containers of notes.
@@ -17,11 +15,8 @@ module GuitarProParser
 
     attr_accessor :voices
 
-    def initialize(version, settings)
-      @settings = settings
-      @voices = {}
-      voices_count = version >= 5.0 ? 2 : 1
-      voices_count.times { |n| @voices[GuitarProHelper::VOICES.fetch(n)] = [] }
+    def initialize
+      @voices = {lead: [], bass: []}
     end
 
     # Returns selected beat of selected voice

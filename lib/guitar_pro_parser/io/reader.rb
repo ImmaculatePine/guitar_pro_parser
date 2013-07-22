@@ -1,10 +1,6 @@
 require 'guitar_pro_parser/io/input_stream'
 require 'guitar_pro_parser/guitar_pro_helper'
 
-# TODO: Maybe I should move this requires to song
-require "guitar_pro_parser/bar"
-
-
 module GuitarProParser
 
   class Reader
@@ -40,7 +36,25 @@ module GuitarProParser
       bars_count.times { read_bars_settings }
       tracks_count.times { read_track }
       @input.skip_byte if @version >= 5.0
-      read_beats
+      
+      @song.bars_settings.each do |bar_settings| 
+        @song.tracks.each do |track|
+          bar = Bar.new
+
+          voices_count = @version >= 5.0 ? 2 : 1
+
+          voices_count.times do |voice_number|
+            voice = GuitarProHelper::VOICES.fetch(voice_number)
+            beats_count = @input.read_integer
+            beats_count.times { read_beat(track, bar, voice) }
+          end
+
+          track.bars << bar
+
+          # Padding
+          @input.skip_byte if @version >= 5.0
+        end
+      end
     end
 
     private
@@ -335,26 +349,209 @@ module GuitarProParser
       @input.increment_offset 45 if @version == 5.0
     end
 
-    def read_beats
-      @song.bars_settings.each do |bar_settings| 
-        @song.tracks.each do |track|
-          
-          bar = Bar.new(@version, bar_settings)
+    def read_beat(track, bar, voice)
+      beat = Beat.new
+      bar.voices.fetch(voice) << beat
 
-          bar.voices.count.times do |voice_number|
-            beats_count = @input.read_integer
-            beats_count.times do
-              beat = Beat.new(@input, @version, track)
-              bar.voices.fetch(GuitarProHelper::VOICES.fetch(voice_number)) << beat
-            end
-          end
+      # The beat bitmask declares which parameters are defined for the beat:
+      # Bit 0 (LSB):  Dotted note
+      # Bit 1:        Chord diagram present
+      # Bit 2:        Text present
+      # Bit 3:        Beat effects present
+      # Bit 4:        Mix table change present
+      # Bit 5:        This beat is an N-tuplet
+      # Bit 6:        Is a rest beat
+      # Bit 7 (MSB):  Unused (set to 0)
+      bits = @input.read_bitmask
+      beat.dotted = bits[0]
+      has_chord_diagram = bits[1]
+      has_text = bits[2]
+      has_effects = bits[3]
+      has_mix_table_change = bits[4]
+      is_tuplet = bits[5]
+      is_rest = bits[6]
 
-          track.bars << bar
-
-          # Padding
-          @input.skip_byte if @version >= 5.0
+      beat.rest = GuitarProHelper::REST_TYPES.fetch(@input.read_byte.to_s) if is_rest
+      beat.duration = GuitarProHelper::DURATIONS.fetch(@input.read_byte.to_s)
+      beat.tuplet = @input.read_integer if is_tuplet
+      read_chord_diagram(track) if has_chord_diagram
+      beat.text = @input.read_chunk if has_text
+      read_beat_effects(beat) if has_effects
+      read_mix_table(beat) if has_mix_table_change 
+      
+      strings_bitmask = @input.read_bitmask
+      used_strings = []
+      (0..6).to_a.reverse.each { |i| used_strings << strings_bitmask[i] }
+      7.times do |i|
+        if used_strings[i]
+          note = Note.new(@input, @version)
+          read_note(note)
+          beat.strings["#{i+1}"] = note
         end
       end
+
+      # Transponse data in Guitar Pro 5
+      if @version >= 5.0
+        # Bits 0-3: Unknown/unused
+        # Bit 4:    8va (up one octave)
+        # Bit 5:    8vb (down one octave)
+        # Bit 6:    15ma (up two octaves)
+        # Bit 7:    Unknown/unused
+        bits1 = @input.read_bitmask
+
+        # Bit 8:    15mb (down two octaves)
+        # Bits 9-10:  Unknown/unused
+        # Bit 11:   An extra unknown data byte follows this bitmask
+        # Bits 12-15: Unknown/unused
+        bits2 = @input.read_bitmask
+
+        beat.transpose = '8va' if bits1[4]
+        beat.transpose = '8vb' if bits1[5]
+        beat.transpose = '15ma' if bits1[6]
+        beat.transpose = '15mb' if bits2[0]
+
+        # Unknown data
+        @input.skip_byte if bits2[3]
+      end
+    end
+
+    def read_chord_diagram(track)
+      beat.chord_diagram = ChordDiagram.new
+
+      format = @input.read_byte
+      
+      if format == 0 # Guitar Pro 3 format
+        beat.chord_diagram.name = @input.read_chunk
+        beat.chord_diagram.start_fret = @input.read_integer
+        unless beat.chord_diagram.start_fret.zero?
+          track.strings.count.times { beat.chord_diagram.frets << @input.read_integer }
+        end
+      else # Guitar Pro 4 format
+        @input.increment_offset(105) # TODO: Write reading logic here
+      end
+    end
+
+    def read_beat_effects(beat)
+      # The beat effects bitmasks declare which parameters are defined for the beat:
+      # Byte 1
+      #  Bit 0:     Vibrato
+      #  Bit 1:     Wide vibrato
+      #  Bit 2:     Natural harmonic
+      #  Bit 3:     Artificial harmonic
+      #  Bit 4:     Fade in
+      #  Bit 5:     String effect
+      #  Bit 6:     Stroke effect
+      #  Bit 7:     Unused (set to 0)
+      bits = @input.read_bitmask
+      beat.add_effect(:vibrato) if bits[0]
+      beat.add_effect(:wide_vibrato) if bits[1]
+      beat.add_effect(:natural_harmonic) if bits[2]
+      beat.add_effect(:artificial_harmonic) if bits[3]
+      beat.add_effect(:fade_in) if bits[4]
+      beat.add_effect(:string_effect) if bits[5]
+      beat.add_effect(:stroke_effect) if bits[6]
+
+      # Byte 2 (extended beat effects, only if the major file version is >= 4):
+      #  Bit 0:     Rasguedo
+      #  Bit 1:     Pickstroke
+      #  Bit 2:     Tremolo bar
+      #  Bits 3-7:  Unused (set to 0)
+      if @version >= 4.0
+        bits = @input.read_bitmask
+        beat.add_effect(:rasguedo) if bits[0]
+        beat.add_effect(:pickstroke) if bits[1]
+        beat.add_effect(:tremolo_bar) if bits[2]
+      end
+
+      if beat.has_effect? :string_effect
+        beat.effects[:string_effect] = GuitarProHelper::STRING_EFFECTS.fetch(@input.read_byte)
+        # Skip a value applied to the string effect in old Guitar Pro versions
+        @input.read_integer if @version < 4.0
+      end
+
+      beat.effects[:tremolo_bar] = read_bend if beat.has_effect? :tremolo_bar
+
+      if beat.has_effect? :stroke_effect
+        upstroke = STROKE_EFFECT_SPEEDS.fetch(@input.read_byte)
+        downstroke = STROKE_EFFECT_SPEEDS.fetch(@input.read_byte)
+        beat.effects[:stroke_effect] = { upstroke_speed: upstroke, downstroke_speed: downstroke }
+      end
+
+      beat.effects[:pickstroke] = GuitarProHelper::STROKE_DIRECTIONS.fetch(@input.read_byte) if beat.has_effect? :pickstroke
+    end
+
+    def read_bend
+      type = BEND_TYPES.fetch(@input.read_byte)
+      height = @input.read_integer
+      points_coint = @input.read_integer
+      result = { type: type, height: height, points: [] }
+      points_coint.times do
+        time = @input.read_integer
+        pitch_alteration = @input.read_integer
+        vibrato_type = VIBRATO_TYPES.fetch(@input.read_byte)
+        result[:points] << { time: time, pitch_alteration: pitch_alteration, vibrato_type: vibrato_type }
+      end
+
+      result
+    end
+
+    def read_mix_table(beat)
+      beat.mix_table = {}
+
+      instrument = @input.read_byte
+      beat.mix_table[:instrument] == instrument unless instrument == -1
+
+      if @version >= 5.0
+        # RSE related 4 digit numbers (-1 if RSE is disabled)
+        3.times { @input.skip_integer }
+        @input.skip_integer # Padding
+      end
+
+      volume = @input.read_byte
+      pan = @input.read_byte
+      chorus = @input.read_byte
+      reverb = @input.read_byte
+      phaser = @input.read_byte
+      tremolo = @input.read_byte
+      
+      tempo_string = ''
+      tempo_string = @input.read_chunk if @version >= 5.0
+      tempo = @input.read_integer
+
+      beat.mix_table[:volume] = { value: volume, transition: @input.read_byte } unless volume == -1
+      beat.mix_table[:pan] = { value: pan, transition: @input.read_byte } unless pan == -1
+      beat.mix_table[:chorus] = { value: chorus, transition: @input.read_byte } unless chorus == -1
+      beat.mix_table[:reverb] = { value: reverb, transition: @input.read_byte } unless reverb == -1
+      beat.mix_table[:phaser] = { value: phaser, transition: @input.read_byte } unless phaser == -1
+      beat.mix_table[:tremolo] = { value: tremolo, transition: @input.read_byte } unless tremolo == -1
+
+      unless tempo == -1
+        beat.mix_table[:tempo] = { value: tempo, transition: @input.read_byte, text: tempo_string }
+        beat.mix_table[:tempo][:hidden_text] = @input.read_byte if @version > 5.0
+      end
+      
+      # The mix table change applied tracks bitmask declares which mix change events apply to all tracks (set = all tracks, reset = current track only):
+      # Bit 0 (LSB):  Volume change
+      # Bit 1:    Pan change
+      # Bit 2:    Chorus change
+      # Bit 3:    Reverb change
+      # Bit 4:    Phaser change
+      # Bit 5:    Tremolo change
+      # Bits 6-7: Unused
+      # TODO: parse this bitmask
+      @input.skip_byte if @version >= 4.0
+
+      # Padding
+      @input.skip_byte if @version >= 5.0
+      
+      if @version > 5.0
+        beat.mix_table[:rse_effect_2] = @input.read_chunk
+        beat.mix_table[:rse_effect_1] = @input.read_chunk
+      end
+    end
+
+    def read_note(note)
+      
     end
 
   end

@@ -3,8 +3,9 @@ require 'guitar_pro_parser/io/reader'
 require 'guitar_pro_parser/guitar_pro_helper'
 
 require 'guitar_pro_parser/page_setup'
-require "guitar_pro_parser/bar_settings"
 require "guitar_pro_parser/track"
+require "guitar_pro_parser/bar_settings"
+require "guitar_pro_parser/bar"
 
 module GuitarProParser
   

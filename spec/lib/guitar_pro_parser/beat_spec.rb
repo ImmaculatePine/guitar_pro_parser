@@ -2,23 +2,16 @@ require 'spec_helper'
 
 describe GuitarProParser::Beat do
 
-
   shared_examples 'any Guitar Pro version' do
     context '1 beat, 1 bar, 1 track' do
       subject { song.tracks[0].bars[0].get_beat(0) }
 
-      its('dotted?') { should == false }
-      its('has_chord_diagram?') { should == false }
-      its('has_text?') { should == true }
-      its('has_effects?') { should == false }
-      its('has_mix_table_change?') { should == false }
-      its('tuplet?') { should == false }
-      its('rest?') { should == false }
+      its(:dotted) { should == false }
+      its(:chord_diagram) { should be_nil }
+      its(:tuplet) { should be_nil }
+      its(:rest) { should be_nil }
 
       its(:duration) { should == :eighth }
-      its(:rest_type) { should be_nil }
-      its(:tuplet_type) { should be_nil }
-      its(:chord_diagram) { should be_nil }
       its(:text) { should == 'First beat' }
       its(:effects) { should == {} }
       its(:mix_table) { should be_nil }
