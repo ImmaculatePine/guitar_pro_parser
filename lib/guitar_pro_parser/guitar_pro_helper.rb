@@ -29,7 +29,7 @@ module GuitarProHelper
 
   # Converts note's digit representation to its string equivalent:
   # 0 for C0, 1 for C#0, etc.
-  def digit_to_note(digit)
+  def GuitarProHelper.digit_to_note(digit)
     note_index = 0
     octave = 0
     digit.times do |i|

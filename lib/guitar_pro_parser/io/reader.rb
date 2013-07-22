@@ -3,7 +3,7 @@ require 'guitar_pro_parser/guitar_pro_helper'
 
 # TODO: Maybe I should move this requires to song
 require "guitar_pro_parser/bar"
-require "guitar_pro_parser/track"
+
 
 module GuitarProParser
 
@@ -37,8 +37,9 @@ module GuitarProParser
 
       bars_count = @input.read_integer
       tracks_count = @input.read_integer
-      read_bars_settings(bars_count)
-      read_tracks(tracks_count)
+      bars_count.times { read_bars_settings }
+      tracks_count.times { read_track }
+      @input.skip_byte if @version >= 5.0
       read_beats
     end
 
@@ -160,68 +161,66 @@ module GuitarProParser
       end
     end
 
-    def read_bars_settings(count)
-      count.times do |i|
-        bars_settings = @song.add_bar_settings
-        
-        bits = @input.read_bitmask
-        has_new_time_signature_numerator = bits[0]
-        has_new_time_signature_denominator = bits[1]
-        bars_settings.has_start_of_repeat = bits[2]
-        bars_settings.has_end_of_repeat = bits[3]
-        has_alternate_endings = bits[4]
-        has_marker = bits[5]
-        has_new_key_signature = bits[6]
-        bars_settings.double_bar = bits[7]
+    def read_bars_settings
+      bars_settings = @song.add_bar_settings
+      
+      bits = @input.read_bitmask
+      has_new_time_signature_numerator = bits[0]
+      has_new_time_signature_denominator = bits[1]
+      bars_settings.has_start_of_repeat = bits[2]
+      bars_settings.has_end_of_repeat = bits[3]
+      has_alternate_endings = bits[4]
+      has_marker = bits[5]
+      has_new_key_signature = bits[6]
+      bars_settings.double_bar = bits[7]
 
-        time_signature_numerator = @input.read_byte if has_new_time_signature_numerator
-        time_signature_denominator = @input.read_byte if has_new_time_signature_denominator
-        beam_eight_notes_by_values = []
+      time_signature_numerator = @input.read_byte if has_new_time_signature_numerator
+      time_signature_denominator = @input.read_byte if has_new_time_signature_denominator
+      beam_eight_notes_by_values = []
 
-        if bars_settings.has_end_of_repeat
-          bars_settings.repeats_count = @input.read_byte 
+      if bars_settings.has_end_of_repeat
+        bars_settings.repeats_count = @input.read_byte 
 
-          # Version 5 of the format has slightly different counting for repeats
-          bars_settings.repeats_count = bars_settings.repeats_count - 1 if @version >= 5.0
-        end
-
-        # Read number of alternate ending and marker
-        # Their order differs depending on Guitar Pro version
-        if @version < 5.0
-          read_alternate_endings(bars_settings) if has_alternate_endings
-          read_marker(bars_settings) if has_marker
-        else
-          read_marker(bars_settings) if has_marker
-          read_alternate_endings(bars_settings) if has_alternate_endings
-        end
-
-        # Read new key signature if it changed
-        if has_new_key_signature
-          key = @input.read_byte
-          scale = @input.read_boolean ? :minor : :major
-          bars_settings.set_new_key_signature(key, scale)
-        end
-
-        # Read specific Guitar Pro 5 data
-        if @version >= 5.0
-          # Read beaming 8th notes by values if there is new time signature
-          if has_new_time_signature_numerator || has_new_time_signature_denominator
-            4.times { beam_eight_notes_by_values << @input.read_byte }
-          end
-
-          # If a GP5 file doesn't define an alternate ending here, ignore a byte of padding
-          @input.skip_byte unless has_alternate_endings
-          
-          # Read triplet feel
-          bars_settings.triplet_feel = GuitarProHelper::TRIPLET_FEEL[@input.read_byte]
-          @song.triplet_feel = true if bars_settings.triplet_feel
-          
-          # Skip byte of padding
-          @input.skip_byte
-        end
-
-        bars_settings.set_new_time_signature(time_signature_numerator, time_signature_denominator, beam_eight_notes_by_values) if has_new_time_signature_numerator || has_new_time_signature_denominator
+        # Version 5 of the format has slightly different counting for repeats
+        bars_settings.repeats_count = bars_settings.repeats_count - 1 if @version >= 5.0
       end
+
+      # Read number of alternate ending and marker
+      # Their order differs depending on Guitar Pro version
+      if @version < 5.0
+        read_alternate_endings(bars_settings) if has_alternate_endings
+        read_marker(bars_settings) if has_marker
+      else
+        read_marker(bars_settings) if has_marker
+        read_alternate_endings(bars_settings) if has_alternate_endings
+      end
+
+      # Read new key signature if it changed
+      if has_new_key_signature
+        key = @input.read_byte
+        scale = @input.read_boolean ? :minor : :major
+        bars_settings.set_new_key_signature(key, scale)
+      end
+
+      # Read specific Guitar Pro 5 data
+      if @version >= 5.0
+        # Read beaming 8th notes by values if there is new time signature
+        if has_new_time_signature_numerator || has_new_time_signature_denominator
+          4.times { beam_eight_notes_by_values << @input.read_byte }
+        end
+
+        # If a GP5 file doesn't define an alternate ending here, ignore a byte of padding
+        @input.skip_byte unless has_alternate_endings
+        
+        # Read triplet feel
+        bars_settings.triplet_feel = GuitarProHelper::TRIPLET_FEEL[@input.read_byte]
+        @song.triplet_feel = true if bars_settings.triplet_feel
+        
+        # Skip byte of padding
+        @input.skip_byte
+      end
+
+      bars_settings.set_new_time_signature(time_signature_numerator, time_signature_denominator, beam_eight_notes_by_values) if has_new_time_signature_numerator || has_new_time_signature_denominator
     end
 
     def read_alternate_endings(bars_settings)
@@ -248,13 +247,92 @@ module GuitarProParser
       @input.skip_byte
     end
 
-    def read_tracks(count)
-      count.times do |i|
-        @song.tracks << Track.new(@input, @version, i)
+    def read_track
+      track = @song.add_track
+      
+      # Bit 0 (LSB):  Drums track
+      # Bit 1:        12 stringed guitar track
+      # Bit 2:        Banjo track
+      # Bit 3:        Blank bit
+      # Bit 4:        Marked for solo playback
+      # Bit 5:        Marked for muted playback
+      # Bit 6:        Use RSE playback (track instrument option)
+      # Bit 7:        Indicate tuning on the score (track properties)
+      bits = @input.read_bitmask
+      track.drums = bits[0]
+      track.twelve_stringed_guitar = bits[1]
+      track.banjo = bits[2]
+      track.solo_playback = bits[4]
+      track.mute_playback = bits[5]
+      track.rse_playback = bits[6]
+      track.indicate_tuning = bits[7]
+
+      track_name_field_length = 41
+      length = @input.read_byte
+      track.name = @input.read_string length
+      @input.increment_offset (track_name_field_length - length - 1)
+
+      strings_count = @input.read_integer
+      track.strings.clear
+      strings_count.times { track.strings << (GuitarProHelper.digit_to_note(@input.read_integer)) }
+      # Skip padding if there are less than 7 strings
+      (7 - strings_count).times { @input.skip_integer }
+
+      track.midi_port = @input.read_integer
+      track.midi_channel = @input.read_integer
+      track.midi_channel_for_effects = @input.read_integer
+      track.frets_count = @input.read_integer
+      track.capo = @input.read_integer
+
+      track.color.clear
+      3.times { track.color << @input.read_byte }
+      @input.skip_byte
+
+      if @version > 5.0
+        # The track properties 1 bitmask declares various options in track properties:
+        # Bit 0 (LSB):  Unknown (something to do with tablature notation being enabled)
+        # Bit 1:        Unknown
+        # Bit 2:        Diagrams/chords below the standard notation
+        # Bit 3:        Show rhythm with tab
+        # Bit 4:        Force horizontal beams
+        # Bit 5:        Force channels 11 to 16
+        # Bit 6:        Diagrams list on top of the score
+        # Bit 7 (MSB):  Diagrams in the score
+        bits = @input.read_bitmask
+        track.diagrams_below_the_standard_notation = bits[2]
+        track.show_rythm_with_tab = bits[3]
+        track.force_horizontal_beams = bits[4]
+        track.force_channels_11_to_16 = bits[5]
+        track.diagrams_list_on_top_of_score = bits[6]
+        track.diagrams_in_the_score = bits[7]
+
+        # The track properties 2 bitmask declares various options in track properties/instrument:
+        # Bit 0 (LSB):  Unknown
+        # Bit 1:        Auto-Let Ring
+        # Bit 2:        Auto Brush
+        # Bit 3:        Extend rhythmic inside the tab
+        # Bits 4-7:     Unknown
+        bits = @input.read_bitmask
+        track.auto_let_ring = bits[1]
+        track.auto_brush = bits[2]
+        track.extend_rhytmic_inside_the_tab = bits[3]
+
+        @input.skip_byte
+        track.midi_bank = @input.read_byte
+        track.human_playing = @input.read_byte
+        track.auto_accentuation = @input.read_byte
+        @input.increment_offset 31
+        track.sound_bank = @input.read_byte
+        @input.increment_offset 7
+
+        track.equalizer.clear
+        4.times { track.equalizer << @input.read_byte }
+
+        track.instrument_effect_1 = @input.read_chunk
+        track.instrument_effect_2 = @input.read_chunk
       end
 
-      # Padding
-      @input.skip_byte if @version >= 5.0
+      @input.increment_offset 45 if @version == 5.0
     end
 
     def read_beats
@@ -267,7 +345,7 @@ module GuitarProParser
             beats_count = @input.read_integer
             beats_count.times do
               beat = Beat.new(@input, @version, track)
-              bar.voices.fetch(VOICES.fetch(voice_number)) << beat
+              bar.voices.fetch(GuitarProHelper::VOICES.fetch(voice_number)) << beat
             end
           end
 

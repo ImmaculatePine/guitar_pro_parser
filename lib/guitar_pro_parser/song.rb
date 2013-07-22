@@ -4,6 +4,7 @@ require 'guitar_pro_parser/guitar_pro_helper'
 
 require 'guitar_pro_parser/page_setup'
 require "guitar_pro_parser/bar_settings"
+require "guitar_pro_parser/track"
 
 module GuitarProParser
   
@@ -106,6 +107,11 @@ module GuitarProParser
     def add_bar_settings
       @bars_settings << BarSettings.new
       @bars_settings.last
+    end
+
+    def add_track
+      @tracks << Track.new
+      @tracks.last
     end
 
   end

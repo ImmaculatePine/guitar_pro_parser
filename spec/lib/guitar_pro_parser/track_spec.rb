@@ -36,8 +36,7 @@ describe GuitarProParser::Track do
     its(:mute_playback) { should == false }
     its(:rse_playback) { should == false }
     its(:indicate_tuning) { should == false }
-    its(:strings_count) { should == 6 }
-    its(:strings_tuning) { should == %w(E5 B4 G4 D4 A3 E3) }
+    its(:strings) { should == %w(E5 B4 G4 D4 A3 E3) }
     its(:midi_port) { should == 1 }
     its(:frets_count) { should == 24 }
     its(:capo) { should == 0 }
@@ -93,8 +92,7 @@ describe GuitarProParser::Track do
     context '7 strings guitar' do
       test_track :seven_strings
       its(:name) { should == '7 string guitar' }
-      its(:strings_count) { should == 7 }
-      its(:strings_tuning) { should == %w(E5 B4 G4 D4 A3 E3 B2) }
+      its(:strings) { should == %w(E5 B4 G4 D4 A3 E3 B2) }
     end
 
     context 'green colored' do
@@ -104,8 +102,7 @@ describe GuitarProParser::Track do
 
     context 'drop D' do
       test_track :drop_d
-      its(:strings_count) { should == 6 }
-      its(:strings_tuning) { should == %w(D5 A4 F4 C4 G3 C3) } # actually it is drop C
+      its(:strings) { should == %w(D5 A4 F4 C4 G3 C3) } # actually it is drop C
     end
 
     context 'with more frets' do
@@ -121,14 +118,14 @@ describe GuitarProParser::Track do
     context '12 strings' do
       test_track :twelve_strings
       its(:name) { should == '12 stringed guitar' }
-      its(:strings_count) { should == 6 }
+      its('strings.count') { should == 6 }
       its(:twelve_stringed_guitar) { should == true }
     end
 
     context 'banjo' do
       test_track :banjo
       its(:name) { should == 'Banjo' }
-      its(:strings_count) { should == 5 }
+      its('strings.count') { should == 5 }
       its(:banjo) { should == true }
     end
   end
