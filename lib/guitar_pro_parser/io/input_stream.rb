@@ -41,17 +41,13 @@ module GuitarProParser
       value
     end
 
-    # TODO: Refactor
     def read_bitmask
       bits = []
       value = read_byte
-      value.to_s(2).each_char { |bit| bits << bit.to_i }
-      bits = bits.reverse
-      bits << 0 while bits.count < 8
-
-      booleans = []
-      bits.each { |bit| booleans << !bit.zero? }
-      booleans
+      value.to_s(2).each_char { |bit| bits << !bit.to_i.zero? }
+      bits.reverse!
+      bits << false while bits.count < 8
+      bits
     end
 
     # Reads data chunk from file.
