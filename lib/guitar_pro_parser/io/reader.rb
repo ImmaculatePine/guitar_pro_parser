@@ -165,13 +165,21 @@ module GuitarProParser
       end
     end
 
-    # TODO: Write this method
     def read_channels
-      64.times do
-        @input.skip_integer
-        6.times { @input.skip_byte}
-        @input.skip_short_integer
-        @song.channels << nil
+      4.times do
+        @song.channels << []
+        16.times do
+          channel = Channel.new
+          channel.instrument = @input.read_integer
+          channel.volume = @input.read_byte
+          channel.pan = @input.read_byte
+          channel.chorus = @input.read_byte
+          channel.reverb = @input.read_byte
+          channel.phaser = @input.read_byte
+          channel.tremolo = @input.read_byte
+          @song.channels.last << channel
+          @input.skip_short_integer # Padding
+        end
       end
     end
 
