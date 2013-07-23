@@ -114,7 +114,6 @@ module GuitarProParser
       @song.page_setup.bottom_margin = @input.read_integer
       @song.page_setup.score_size = @input.read_integer
 
-      # TODO: Read PageSetup 16-bit bitmask here
       # The enabled header/footer fields bitmask declares which fields are displayed:
       # Bit 0 (LSB):  Title field
       # Bit 1:    Subtitle field
@@ -126,8 +125,18 @@ module GuitarProParser
       # Bit 7:    Copyright field
       # Bit 8:    Page Number (field)
       # Bits 9 - 15:  Unused (set to 0)
-      @input.skip_byte
-      @input.skip_byte
+      bits = @input.read_bitmask
+      @song.page_setup.displayed_fields << :title if bits[0]
+      @song.page_setup.displayed_fields << :subtitle if bits[1]
+      @song.page_setup.displayed_fields << :artist if bits[2]
+      @song.page_setup.displayed_fields << :album if bits[3]
+      @song.page_setup.displayed_fields << :lyrics_author if bits[4]
+      @song.page_setup.displayed_fields << :music_author if bits[5]
+      @song.page_setup.displayed_fields << :lyrics_and_music_author if bits[6]
+      @song.page_setup.displayed_fields << :copyright if bits[7]
+
+      bits = @input.read_bitmask
+      @song.page_setup.displayed_fields << :page_number if bits[0]
 
       @song.page_setup.title = @input.read_chunk
       @song.page_setup.subtitle = @input.read_chunk

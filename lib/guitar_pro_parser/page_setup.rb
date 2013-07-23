@@ -4,7 +4,7 @@ module GuitarProParser
 
     attr_accessor :page_format_length, :page_format_width, :left_margin, :right_margin, :top_margin, :bottom_margin, :score_size,
                   :title, :subtitle, :artist, :album, :lyrics_author, :music_author, :lyrics_and_music_author,
-                  :copyright_line_1, :copyright_line_2, :page_number
+                  :copyright_line_1, :copyright_line_2, :page_number, :displayed_fields
 
     def initialize
       @page_format_length = 0
@@ -25,6 +25,8 @@ module GuitarProParser
       @copyright_line_1 = ''
       @copyright_line_2 = ''
       @page_number = ''
+
+      @displayed_fields = []
     end
 
   end

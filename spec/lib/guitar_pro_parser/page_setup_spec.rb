@@ -21,4 +21,6 @@ describe GuitarProParser::PageSetup do
   its(:copyright_line_1) { should == 'Copyright %COPYRIGHT%' }
   its(:copyright_line_2) { should == 'All Rights Reserved - International Copyright Secured' }
   its(:page_number) { should == 'Page %N%/%P%' }
+
+  its(:displayed_fields) { should == [:title, :subtitle, :artist, :album, :lyrics_author, :music_author, :lyrics_and_music_author, :copyright, :page_number] }
 end
