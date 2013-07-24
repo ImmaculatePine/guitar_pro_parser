@@ -536,14 +536,14 @@ module GuitarProParser
       tempo_string = @input.read_chunk if @version >= 5.0
       tempo = @input.read_integer
 
-      beat.mix_table[:volume] = { value: volume, transition: @input.read_byte } if volume > 0
-      beat.mix_table[:pan] = { value: pan, transition: @input.read_byte } if pan > 0
-      beat.mix_table[:chorus] = { value: chorus, transition: @input.read_byte } if chorus > 0
-      beat.mix_table[:reverb] = { value: reverb, transition: @input.read_byte } if reverb > 0
-      beat.mix_table[:phaser] = { value: phaser, transition: @input.read_byte } if phaser > 0
-      beat.mix_table[:tremolo] = { value: tremolo, transition: @input.read_byte } if tremolo > 0
+      beat.mix_table[:volume] = { value: volume, transition: @input.read_byte } if volume >= 0
+      beat.mix_table[:pan] = { value: pan, transition: @input.read_byte } if pan >= 0
+      beat.mix_table[:chorus] = { value: chorus, transition: @input.read_byte } if chorus >= 0
+      beat.mix_table[:reverb] = { value: reverb, transition: @input.read_byte } if reverb >= 0
+      beat.mix_table[:phaser] = { value: phaser, transition: @input.read_byte } if phaser >= 0
+      beat.mix_table[:tremolo] = { value: tremolo, transition: @input.read_byte } if tremolo >= 0
 
-      if tempo > 0
+      if tempo >= 0
         beat.mix_table[:tempo] = { value: tempo, transition: @input.read_byte, text: tempo_string }
         beat.mix_table[:tempo][:hidden_text] = @input.read_byte if @version > 5.0
       end
