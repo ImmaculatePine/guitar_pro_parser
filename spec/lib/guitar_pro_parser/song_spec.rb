@@ -16,7 +16,6 @@ describe GuitarProParser::Song do
     its(:bpm) { should == 120 }
     its(:page_setup) { should be_kind_of GuitarProParser::PageSetup }
     its('channels.count') { should == 4 }
-    pending 'midi channels data'
     its('musical_directions.count') { should == 19 }
     its(:equalizer) { should == Array.new(11, 0) }
 
