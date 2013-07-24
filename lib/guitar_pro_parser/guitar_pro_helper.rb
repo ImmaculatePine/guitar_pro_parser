@@ -15,8 +15,8 @@ module GuitarProHelper
   TRIPLET_FEEL = [:no_triplet_feel, :triplet_8th, :triplet_16th]
   REST_TYPES = { '0' => :empty_beat, 
                  '2' => :rest }
-  DURATIONS = { '254' => :whole, # TODO: I don't know why
-                '255' => :half,  # these 2 keys are not -2 and -1
+  DURATIONS = { '-2' => :whole,
+                '-1' => :half,
                  '0' => :quarter,
                  '1' => :eighth,
                  '2' => :sixteens,

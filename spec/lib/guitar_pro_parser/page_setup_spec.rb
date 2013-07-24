@@ -4,7 +4,7 @@ describe GuitarProParser::PageSetup do
   subject { GuitarProParser::Song.new(test_tab_path(5)).page_setup }
 
   its(:page_format_length) { should == 210 }
-  its(:page_format_width) { should == 41 }
+  its(:page_format_width) { should == 297 }
   its(:left_margin) { should == 10 }
   its(:right_margin) { should == 10 }
   its(:top_margin) { should == 15 }

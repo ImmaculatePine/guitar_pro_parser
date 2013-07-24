@@ -36,7 +36,7 @@ describe GuitarProParser::InputStream do
     let!(:result) { subject.read_short_integer }
     
     its(:offset) { should == 359}
-    specify { result.should == 255 }
+    specify { result.should == 511 }
   end
 
   shared_examples 'read_string and read_chunk' do

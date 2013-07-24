@@ -13,34 +13,61 @@ module GuitarProParser
       @offset = 0
     end
 
+    # Reads unsigned integer (4 bytes)
     def read_integer
-      value = IO.binread(@file_path, INTEGER_LENGTH, @offset).bytes.to_a[0].to_i
+      value = IO.binread(@file_path, INTEGER_LENGTH, @offset).unpack('i')[0]
       skip_integer
       value
     end
 
+    # Reads signed integer (4 bytes)
+    def read_signed_integer
+      value = IO.binread(@file_path, INTEGER_LENGTH, @offset).unpack('I')[0]
+      skip_integer
+      value
+    end
+
+    # Reads unsigned short integer (2 bytes)
     def read_short_integer
-      value = IO.binread(@file_path, SHORT_INTEGER_LENGTH, @offset).bytes.to_a[0].to_i
+      value = IO.binread(@file_path, SHORT_INTEGER_LENGTH, @offset).unpack('S_')[0]
       skip_short_integer
       value
     end
 
+    # Reads signed short integer (2 bytes)
+    def read_signed_short_integer
+      value = IO.binread(@file_path, SHORT_INTEGER_LENGTH, @offset).unpack('s_')[0]
+      skip_short_integer
+      value
+    end
+
+    # Reads unsigned byte (8 bits) (0..255)
     def read_byte
-      value = IO.binread(@file_path, BYTE_LENGTH, @offset).bytes.to_a[0].to_i
+      value = IO.binread(@file_path, BYTE_LENGTH, @offset).unpack('C')[0]
       skip_byte
       value
     end
 
+    # Reads signed byte (8 bits) (-127..127)
+    def read_signed_byte
+      value = IO.binread(@file_path, BYTE_LENGTH, @offset).unpack('c')[0]
+      skip_byte
+      value
+    end
+    
+    # Reads signed byte as boolean (8 bit)
     def read_boolean
       !read_byte.zero?
     end
 
-    def read_string length
+    # Reads string with specified length
+    def read_string(length)
       value = IO.binread(@file_path, length, @offset)
       increment_offset(length)
       value
     end
 
+    # Reads byte as 8-bit bitmask
     def read_bitmask
       bits = []
       value = read_byte

@@ -187,7 +187,7 @@ module GuitarProParser
     def read_musical_directions
       GuitarProHelper::MUSICAL_DIRECTIONS.each do |musical_direction|
         value = @input.read_short_integer
-        value = nil if value == 255
+        value = nil if value == 0xFFFF
         @song.musical_directions[musical_direction] = value
       end
     end
@@ -389,7 +389,7 @@ module GuitarProParser
       is_rest = bits[6]
 
       beat.rest = GuitarProHelper::REST_TYPES.fetch(@input.read_byte.to_s) if is_rest
-      beat.duration = GuitarProHelper::DURATIONS.fetch(@input.read_byte.to_s)
+      beat.duration = GuitarProHelper::DURATIONS.fetch(@input.read_signed_byte.to_s)
       beat.tuplet = @input.read_integer if is_tuplet
       read_chord_diagram(track) if has_chord_diagram
       beat.text = @input.read_chunk if has_text
@@ -512,6 +512,7 @@ module GuitarProParser
       result
     end
 
+    # TODO: It seems that this method is incorrect. Test it.
     def read_mix_table(beat)
       beat.mix_table = {}
 
