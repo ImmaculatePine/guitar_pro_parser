@@ -489,8 +489,8 @@ module GuitarProParser
       beat.effects[:tremolo_bar] = read_bend if beat.has_effect? :tremolo_bar
 
       if beat.has_effect? :stroke_effect
-        upstroke = STROKE_EFFECT_SPEEDS.fetch(@input.read_byte)
-        downstroke = STROKE_EFFECT_SPEEDS.fetch(@input.read_byte)
+        upstroke = GuitarProHelper::STROKE_EFFECT_SPEEDS.fetch(@input.read_byte)
+        downstroke = GuitarProHelper::STROKE_EFFECT_SPEEDS.fetch(@input.read_byte)
         beat.effects[:stroke_effect] = { upstroke_speed: upstroke, downstroke_speed: downstroke }
       end
 
