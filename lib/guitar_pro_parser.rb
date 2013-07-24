@@ -11,6 +11,8 @@ require 'guitar_pro_parser/note'
 
 module GuitarProParser
 
+  # Reads Guitar Pro file and returns song object
+  # TODO: Add ability to read only headers instead of the whole file
   def self.read_file(filename)
     Song.new(filename)
   end

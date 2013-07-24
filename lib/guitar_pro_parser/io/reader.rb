@@ -516,8 +516,8 @@ module GuitarProParser
     def read_mix_table(beat)
       beat.mix_table = {}
 
-      instrument = @input.read_byte
-      beat.mix_table[:instrument] == instrument unless instrument == -1
+      instrument = @input.read_signed_byte
+      beat.mix_table[:instrument] = instrument unless instrument == -1
 
       if @version >= 5.0
         # RSE related 4 digit numbers (-1 if RSE is disabled)
@@ -525,25 +525,25 @@ module GuitarProParser
         @input.skip_integer # Padding
       end
 
-      volume = @input.read_byte
-      pan = @input.read_byte
-      chorus = @input.read_byte
-      reverb = @input.read_byte
-      phaser = @input.read_byte
-      tremolo = @input.read_byte
+      volume = @input.read_signed_byte
+      pan = @input.read_signed_byte
+      chorus = @input.read_signed_byte
+      reverb = @input.read_signed_byte
+      phaser = @input.read_signed_byte
+      tremolo = @input.read_signed_byte
       
       tempo_string = ''
       tempo_string = @input.read_chunk if @version >= 5.0
       tempo = @input.read_integer
 
-      beat.mix_table[:volume] = { value: volume, transition: @input.read_byte } unless volume == -1
-      beat.mix_table[:pan] = { value: pan, transition: @input.read_byte } unless pan == -1
-      beat.mix_table[:chorus] = { value: chorus, transition: @input.read_byte } unless chorus == -1
-      beat.mix_table[:reverb] = { value: reverb, transition: @input.read_byte } unless reverb == -1
-      beat.mix_table[:phaser] = { value: phaser, transition: @input.read_byte } unless phaser == -1
-      beat.mix_table[:tremolo] = { value: tremolo, transition: @input.read_byte } unless tremolo == -1
+      beat.mix_table[:volume] = { value: volume, transition: @input.read_byte } if volume > 0
+      beat.mix_table[:pan] = { value: pan, transition: @input.read_byte } if pan > 0
+      beat.mix_table[:chorus] = { value: chorus, transition: @input.read_byte } if chorus > 0
+      beat.mix_table[:reverb] = { value: reverb, transition: @input.read_byte } if reverb > 0
+      beat.mix_table[:phaser] = { value: phaser, transition: @input.read_byte } if phaser > 0
+      beat.mix_table[:tremolo] = { value: tremolo, transition: @input.read_byte } if tremolo > 0
 
-      unless tempo == -1
+      if tempo > 0
         beat.mix_table[:tempo] = { value: tempo, transition: @input.read_byte, text: tempo_string }
         beat.mix_table[:tempo][:hidden_text] = @input.read_byte if @version > 5.0
       end
@@ -556,15 +556,26 @@ module GuitarProParser
       # Bit 4:    Phaser change
       # Bit 5:    Tremolo change
       # Bits 6-7: Unused
-      # TODO: parse this bitmask
-      @input.skip_byte if @version >= 4.0
+      if @version >= 4.0
+        bits = @input.read_bitmask
+        apply_hash = { true => :all, false => :current }
+        beat.mix_table[:volume][:apply_to] = apply_hash[bits[0]] unless beat.mix_table[:volume].nil?
+        beat.mix_table[:pan][:apply_to] = apply_hash[bits[1]] unless beat.mix_table[:pan].nil?
+        beat.mix_table[:chorus][:apply_to] = apply_hash[bits[2]] unless beat.mix_table[:chorus].nil?
+        beat.mix_table[:reverb][:apply_to] = apply_hash[bits[3]] unless beat.mix_table[:reverb].nil?
+        beat.mix_table[:phaser][:apply_to] = apply_hash[bits[4]] unless beat.mix_table[:phaser].nil?
+        beat.mix_table[:tremolo][:apply_to] = apply_hash[bits[5]] unless beat.mix_table[:tremolo].nil?
+      end
 
       # Padding
       @input.skip_byte if @version >= 5.0
       
       if @version > 5.0
-        beat.mix_table[:rse_effect_2] = @input.read_chunk
-        beat.mix_table[:rse_effect_1] = @input.read_chunk
+        rse_effect_2 = @input.read_chunk
+        rse_effect_1 = @input.read_chunk
+
+        beat.mix_table[:rse_effect_2] = rse_effect_2 unless rse_effect_2.empty?
+        beat.mix_table[:rse_effect_1] = rse_effect_1 unless rse_effect_1.empty?
       end
     end
 
