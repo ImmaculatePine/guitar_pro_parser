@@ -8,9 +8,9 @@ Gem::Specification.new do |spec|
   spec.version       = GuitarProParser::VERSION
   spec.authors       = ["Alexander Borovykh"]
   spec.email         = ["immaculate.pine@gmail.com"]
-  spec.description   = %q{TODO: Write a gem description}
-  spec.summary       = %q{TODO: Write a gem summary}
-  spec.homepage      = ""
+  spec.description   = %q{Gem for reading Guitar Pro files}
+  spec.summary       = %q{It is a gem that allows to read Guitar Pro files. Now it supports Guitar Pro 4 and 5 files. Version 3 should work but is not tested at all.}
+  spec.homepage      = "https://github.com/ImmaculatePine/guitar_pro_parser"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)
