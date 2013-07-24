@@ -49,6 +49,16 @@ Or install it yourself as:
       end
     end
 
+  If you don't need any information about beats, notes and other music stuff you can read headers only:
+
+    song = GuitarProParser.read_headers('path_to_file')
+
+    # You'll have title, subtitle, artist, etc.
+    song.title # => 'Title'
+
+    # But no notes
+    song.tracks.first.bars # => []
+
   All available methods and attributes could be found in the source code. :)
   
   TODO: Write documentation.

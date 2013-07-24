@@ -64,7 +64,7 @@ module GuitarProParser
                   :master_volume, :equalizer, :page_setup, :tempo, :bpm, :key, :octave, :channels,
                   :musical_directions, :master_reverb, :bars_settings, :tracks
 
-    def initialize(file_path = nil)
+    def initialize(file_path = nil, headers_only = false)
       # Initialize variables by default values
       @title = ''
       @title = ''
@@ -95,7 +95,7 @@ module GuitarProParser
       @tracks = []
 
       # Read data from file
-      Reader.new(self, file_path) unless file_path.nil?
+      Reader.new(self, file_path, headers_only) unless file_path.nil?
     end
 
     def add_bar_settings

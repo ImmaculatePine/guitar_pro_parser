@@ -5,7 +5,7 @@ module GuitarProParser
 
   class Reader
 
-    def initialize(song, file_path)
+    def initialize(song, file_path, headers_only)
       @song = song
       @file_path = file_path
 
@@ -33,6 +33,13 @@ module GuitarProParser
 
       bars_count = @input.read_integer
       tracks_count = @input.read_integer
+
+      if headers_only
+        bars_count.times { @song.add_bar_settings }
+        tracks_count.times { @song.add_track }
+        return
+      end
+
       bars_count.times { read_bars_settings }
       tracks_count.times { read_track }
       @input.skip_byte if @version >= 5.0
