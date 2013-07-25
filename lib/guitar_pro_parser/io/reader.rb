@@ -69,9 +69,8 @@ module GuitarProParser
     def read_version
       length = @input.read_byte
       version_string = @input.read_string length
-      # TODO: Change a way to get value from string
-      version_string['FICHIER GUITAR PRO v'] = ''
-      @version = version_string.to_f
+      # TODO: Raise exception for unsupported or wrong versions here
+      @version = GuitarProHelper::VERSIONS.fetch(version_string)
       @song.version = @version
 
       # Skip first 31 bytes that are reserved for version data

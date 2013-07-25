@@ -1,5 +1,19 @@
 module GuitarProHelper
 
+  # Possible versions of Guitar Pro file
+  VERSIONS = { 'FICHIER GUITARE PRO v1' => 1.0,
+               'FICHIER GUITARE PRO v1.01' => 1.01,
+               'FICHIER GUITARE PRO v1.02' => 1.02,
+               'FICHIER GUITARE PRO v1.03' => 1.03,
+               'FICHIER GUITARE PRO v1.04' => 1.04,
+               'FICHIER GUITAR PRO v2.20'  => 2.2,
+               'FICHIER GUITAR PRO v2.21'  =>2.21,
+               'FICHIER GUITAR PRO v3.00' => 3.0,
+               'FICHIER GUITAR PRO v4.00' => 4.0,
+               'FICHIER GUITAR PRO v4.06' => 4.06,
+               'FICHIER GUITAR PRO L4.06' => 4.06,
+               'FICHIER GUITAR PRO v5.10' => 5.1 }
+
   NOTES = %w(C C# D D# E F F# G G# A A# B)
   VOICES = [:lead, :bass]
   FINGERS = [:thumb, :index, :middle, :ring, :pinky]
