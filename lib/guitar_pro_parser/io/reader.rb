@@ -765,7 +765,7 @@ module GuitarProParser
 
         if has_trill
           fret = @input.read_byte
-          period = GuitarProHelper::TRILL_PERIODS.fetch(@input.read_byte)
+          period = GuitarProHelper::TRILL_PERIODS.fetch(@input.read_byte.to_s)
           note.add_trill(fret, period)
         end
       end

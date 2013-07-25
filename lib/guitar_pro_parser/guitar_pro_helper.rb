@@ -36,7 +36,7 @@ module GuitarProHelper
   MAP_SLIDE_TYPES_GP4 = { '-2'=>6, '-1'=>5, '0'=>0, '1'=>1, '2'=>2, '3'=>3, '4'=>4 }
 
   HARMONIC_TYPES = [:none, :natural, :artificial, :tapped, :pinch, :semi]
-  TRILL_PERIODS = [4, 8, 16]
+  TRILL_PERIODS = { '1' => 4, '2' => 8, '3' => 16 }
   CHORD_TYPES = %w(M 7 7M 6 m m7 m7M m6 sus2 sus4 7sus2 7sus4 dim aug 5)
   NINE_ELEVEN_THIRTEEN = [0, 9, 11, 13]
 
