@@ -2,17 +2,12 @@ module GuitarProParser
   
   # This class represents bars as containers of notes.
   #
-  # == Attributes
-  #
-  # All attributes are read-only
-  #
-  # * +voices+     (hash)  Voices of this bar.
-  #                        Guitar Pro 5 files has :lead and :bass voices.
-  #                        Guitar Pro 4 and less files has only :lead voice.
-  #
-  #
   class Bar
 
+    # Hash of voices of this bar.
+    # Guitar Pro 5 files has :lead and :bass voices.
+    # Guitar Pro 4 and less files has only :lead voice.
+    # Each voice is array of beats.
     attr_accessor :voices
 
     def initialize

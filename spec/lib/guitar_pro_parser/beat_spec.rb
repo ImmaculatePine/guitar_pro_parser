@@ -20,7 +20,7 @@ describe GuitarProParser::Beat do
       test_beat :first
 
       its(:dotted) { should == false }
-      its(:chord_diagram) { should be_nil }
+      its(:chord_diagram) { should be_kind_of GuitarProParser::ChordDiagram }
       its(:tuplet) { should be_nil }
       its(:rest) { should be_nil }
 

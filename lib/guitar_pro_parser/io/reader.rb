@@ -273,7 +273,7 @@ module GuitarProParser
         bits = @input.read_bitmask
         bits.count.times { |i| bars_settings.alternate_endings << (i+1) if bits[i] }
       else
-          bars_settings.alternate_endings << @input.read_byte
+        bars_settings.alternate_endings << @input.read_byte
       end
     end
 
@@ -398,7 +398,7 @@ module GuitarProParser
       beat.rest = GuitarProHelper::REST_TYPES.fetch(@input.read_byte.to_s) if is_rest
       beat.duration = GuitarProHelper::DURATIONS.fetch(@input.read_signed_byte.to_s)
       beat.tuplet = @input.read_integer if is_tuplet
-      read_chord_diagram(track) if has_chord_diagram
+      read_chord_diagram(beat, track.strings.count) if has_chord_diagram
       beat.text = @input.read_chunk if has_text
       read_beat_effects(beat) if has_effects
       read_mix_table(beat) if has_mix_table_change 
@@ -439,19 +439,84 @@ module GuitarProParser
       end
     end
 
-    def read_chord_diagram(track)
+    def read_chord_diagram(beat, strings_count)
       beat.chord_diagram = ChordDiagram.new
 
-      format = @input.read_byte
-      
-      if format == 0 # Guitar Pro 3 format
+      format = @input.read_bitmask
+      if format[0] == false # Guitar Pro 3 format
         beat.chord_diagram.name = @input.read_chunk
-        beat.chord_diagram.start_fret = @input.read_integer
-        unless beat.chord_diagram.start_fret.zero?
-          track.strings.count.times { beat.chord_diagram.frets << @input.read_integer }
+        beat.chord_diagram.base_fret = @input.read_integer
+        unless beat.chord_diagram.base_fret.zero?
+          strings_count.times { beat.chord_diagram.frets << @input.read_integer }
         end
-      else # Guitar Pro 4 format
-        @input.increment_offset(105) # TODO: Write reading logic here
+      else # Guitar Pro 4 and 5 format
+        beat.chord_diagram.display_as = @input.read_boolean ? :sharp : :flat
+        @input.increment_offset(3)
+
+        root = @input.read_byte
+        beat.chord_diagram.root = GuitarProHelper::NOTES[root] unless root == 12
+
+        beat.chord_diagram.type = GuitarProHelper::CHORD_TYPES[@input.read_byte]
+        beat.chord_diagram.nine_eleven_thirteen = GuitarProHelper::NINE_ELEVEN_THIRTEEN.fetch(@input.read_byte)
+
+        bass = @input.read_integer
+        beat.chord_diagram.bass = GuitarProHelper::NOTES[bass] if bass >= 0
+
+        beat.chord_diagram.tonality = GuitarProHelper::CHORD_TONALITIES[@input.read_integer]
+        beat.chord_diagram.add = @input.read_boolean
+
+        name_length = @input.read_byte
+        beat.chord_diagram.name = @input.read_string(name_length)
+        @input.increment_offset(20 - name_length) if name_length < 20
+
+        @input.increment_offset(2)
+        beat.chord_diagram.fifth_tonality = GuitarProHelper::CHORD_TONALITIES[@input.read_byte]
+        beat.chord_diagram.ninth_tonality = GuitarProHelper::CHORD_TONALITIES[@input.read_byte]
+        beat.chord_diagram.eleventh_tonality = GuitarProHelper::CHORD_TONALITIES[@input.read_byte]
+
+        beat.chord_diagram.base_fret = @input.read_integer
+
+        strings_count.times { beat.chord_diagram.frets << @input.read_integer }        
+        (7 - strings_count).times { @input.skip_integer }
+
+        barres_count = @input.read_byte
+        barres_frets = []
+        barres_starts = []
+        barres_ends = []
+        5.times { barres_frets << @input.read_byte }
+        5.times { barres_starts << @input.read_byte }
+        5.times { barres_ends << @input.read_byte }
+        barres_count.times do |i| 
+          beat.chord_diagram.add_barre(barres_frets[i],
+                                       barres_starts[i],
+                                       barres_ends[i])
+        end
+
+        # TODO: I don't know why but it looks inverted
+        beat.chord_diagram.intervals << 1 if @input.read_byte == 0x01
+        beat.chord_diagram.intervals << 3 if @input.read_byte == 0x01
+        beat.chord_diagram.intervals << 5 if @input.read_byte == 0x01
+        beat.chord_diagram.intervals << 7 if @input.read_byte == 0x01
+        beat.chord_diagram.intervals << 9 if @input.read_byte == 0x01
+        beat.chord_diagram.intervals << 11 if @input.read_byte == 0x01
+        beat.chord_diagram.intervals << 13 if @input.read_byte == 0x01
+        @input.skip_byte
+
+        strings_count.times do |i|
+          finger_id = @input.read_signed_byte
+          finger = nil
+          if finger_id == -2
+            finger = :unknown
+          elsif finger_id == -1
+            finger = :no
+          else
+            finger = GuitarProHelper::FINGERS[finger_id]
+          end
+          beat.chord_diagram.fingers << finger
+        end
+        @input.increment_offset(7 - strings_count) if strings_count < 7
+
+        beat.chord_diagram.display_fingering = @input.read_boolean
       end
     end
 

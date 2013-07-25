@@ -4,7 +4,7 @@ module GuitarProParser
   #
   # == Attributes
   #
-  # *+new_time_signature+*                  (hash)      Info about new time signature in format 
+  # * +new_time_signature+                  (hash)      Info about new time signature in format 
   #                                                     { numerator: 4, denominator: 4, beam_eight_notes_by_values: [2, 2, 2, 2] }
   #                                                     or nil if doesn't present
   #
