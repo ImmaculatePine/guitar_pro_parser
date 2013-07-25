@@ -753,9 +753,12 @@ module GuitarProParser
         note.add_tremolo(GuitarProHelper::TREMOLO_PICKING_SPEEDS.fetch(@input.read_byte.to_s)) if has_tremolo
 
         if has_slide
-          value = @input.read_byte.to_s
-          # TODO: Check if there is difference between GP4 and GP5
-          note.slide = GuitarProHelper::SLIDE_TYPES.fetch(GuitarProHelper::MAP_SLIDE_TYPES_GP5.fetch(value))
+          value = @input.read_signed_byte.to_s
+          if @version >= 5.0
+            note.slide = GuitarProHelper::SLIDE_TYPES.fetch(GuitarProHelper::MAP_SLIDE_TYPES_GP5.fetch(value))
+          else
+            note.slide = GuitarProHelper::SLIDE_TYPES.fetch(GuitarProHelper::MAP_SLIDE_TYPES_GP4.fetch(value))
+          end
         end
 
         read_harmonic(note) if has_harmonic

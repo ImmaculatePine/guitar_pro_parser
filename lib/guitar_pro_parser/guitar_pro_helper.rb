@@ -33,8 +33,8 @@ module GuitarProHelper
   
   SLIDE_TYPES = [:no_slide, :shift_slide, :legato_slide, :slide_out_and_downwards, :slide_out_and_upwards, :slide_in_from_below, :slide_in_from_above]
   MAP_SLIDE_TYPES_GP5 = { '0'=>0, '1'=>1, '2'=>2, '4'=>3, '8'=>4, '16'=>5, '32'=>6 }
-  MAP_SLIDE_TYPES_GP4 = { '-2'=>0, '-1'=>1, '0'=>2, '1'=>3, '2'=>4, '3'=>5, '4'=>6 }
-  
+  MAP_SLIDE_TYPES_GP4 = { '-2'=>6, '-1'=>5, '0'=>0, '1'=>1, '2'=>2, '3'=>3, '4'=>4 }
+
   HARMONIC_TYPES = [:none, :natural, :artificial, :tapped, :pinch, :semi]
   TRILL_PERIODS = [4, 8, 16]
   CHORD_TYPES = %w(M 7 7M 6 m m7 m7M m6 sus2 sus4 7sus2 7sus4 dim aug 5)
