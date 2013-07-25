@@ -687,8 +687,8 @@ module GuitarProParser
       note.fret = @input.read_byte
 
       if has_fingering
-        left_finger = @input.read_byte
-        right_finger = @input.read_byte
+        left_finger = @input.read_signed_byte
+        right_finger = @input.read_signed_byte
 
         note.add_left_hand_finger(GuitarProHelper::FINGERS.fetch(left_finger)) unless left_finger == -1
         note.add_right_hand_finger(GuitarProHelper::FINGERS.fetch(right_finger)) unless right_finger == -1
