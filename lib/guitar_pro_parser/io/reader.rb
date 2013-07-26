@@ -17,12 +17,12 @@ module GuitarProParser
       @song.triplet_feel = @input.read_boolean if @version < 5.0
       read_lyrics if @version >= 4.0
 
-      if @version >= 5.0
+      if @version > 5.0
         @song.master_volume = @input.read_integer 
         @input.skip_integer
+        11.times { |n| @song.equalizer[n] = @input.read_byte }
       end
-
-      11.times { |n| @song.equalizer[n] = @input.read_byte } if @version >= 5.0
+      
       read_page_setup if @version >= 5.0
       read_tempo
       read_key
@@ -159,7 +159,7 @@ module GuitarProParser
     def read_tempo
       @song.tempo = @input.read_chunk if @version >= 5.0
       @song.bpm = @input.read_integer
-      @input.skip_byte if @version >= 5.0
+      @input.skip_byte if @version > 5.0
     end
 
     def read_key
