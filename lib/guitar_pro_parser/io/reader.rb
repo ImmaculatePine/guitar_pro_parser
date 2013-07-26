@@ -82,7 +82,7 @@ module GuitarProParser
       @song.subtitle = @input.read_chunk
       @song.artist = @input.read_chunk
       @song.album = @input.read_chunk
-      @song.lyricist = @input.read_chunk if @version > 5.0
+      @song.lyricist = @input.read_chunk if @version >= 5.0
       @song.composer = @input.read_chunk
       @song.copyright = @input.read_chunk
       @song.transcriber = @input.read_chunk

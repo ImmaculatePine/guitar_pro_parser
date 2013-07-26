@@ -10,7 +10,7 @@ describe GuitarProParser::Song do
     its(:copyright) { should == 'Copyright' }
     its(:transcriber) { should == 'Transcriber' }
     its(:instructions) { should == 'Instructions' }
-    its(:notices) { should include('Notice 1', 'Notice 2', 'Notice 3') }
+    its(:notices) { should == 'Notice 1/nNotice 2/nNotice 3' }
     its(:master_volume) { should == 100 }
     its(:tempo) { should == 'Moderate' }
     its(:bpm) { should == 120 }
