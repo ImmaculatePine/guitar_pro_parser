@@ -12,6 +12,7 @@ module GuitarProHelper
                'FICHIER GUITAR PRO v4.00' => 4.0,
                'FICHIER GUITAR PRO v4.06' => 4.06,
                'FICHIER GUITAR PRO L4.06' => 4.06,
+               'FICHIER GUITAR PRO v5.00' => 5.0,
                'FICHIER GUITAR PRO v5.10' => 5.1 }
 
   NOTES = %w(C C# D D# E F F# G G# A A# B)
