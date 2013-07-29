@@ -47,7 +47,11 @@ module GuitarProHelper
   TREMOLO_PICKING_SPEEDS = { '3' => 32, '2' => 16, '1' => 8 }
   
   SLIDE_TYPES = [:no_slide, :shift_slide, :legato_slide, :slide_out_and_downwards, :slide_out_and_upwards, :slide_in_from_below, :slide_in_from_above]
-  MAP_SLIDE_TYPES_GP5 = { '0'=>0, '1'=>1, '2'=>2, '4'=>3, '8'=>4, '16'=>5, '32'=>6 }
+  MAP_SLIDE_TYPES_GP5 = { '0'=>0, '1'=>1, '2'=>2, 
+                          '4'=>3, '8'=>4, '16'=>5, 
+                          '17'=>[1, 5], '18'=>[2, 5], '20'=>[5, 3],
+                          '24'=>[5, 4], '32'=>6, '33'=>[1, 6], 
+                          '34'=>[2, 6] ,'36'=>[6, 3], '40'=>[6,4] }
   MAP_SLIDE_TYPES_GP4 = { '-2'=>6, '-1'=>5, '0'=>0, '1'=>1, '2'=>2, '3'=>3, '4'=>4 }
 
   HARMONIC_TYPES = [:none, :natural, :artificial, :tapped, :pinch, :semi]

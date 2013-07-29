@@ -82,7 +82,9 @@ module GuitarProParser
     # nil by default
     attr_accessor :tremolo
 
-    # Slide effect. List of slides see in GuitarProHelper::SLIDE_TYPES
+    # (Array) Slide effects. List of slides see in GuitarProHelper::SLIDE_TYPES.
+    # This attribute is array because Guitar Pro 5 supports multiple slides per note
+    # like :slide_in_from_below and :slide_out_and_upwards at once.
     # nil by default
     attr_accessor :slide
 

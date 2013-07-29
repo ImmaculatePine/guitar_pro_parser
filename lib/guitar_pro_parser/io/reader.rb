@@ -753,11 +753,15 @@ module GuitarProParser
 
         if has_slide
           value = @input.read_signed_byte.to_s
+          slides = []
+          
           if @version >= 5.0
-            note.slide = GuitarProHelper::SLIDE_TYPES.fetch(GuitarProHelper::MAP_SLIDE_TYPES_GP5.fetch(value))
+            slides = *GuitarProHelper::MAP_SLIDE_TYPES_GP5.fetch(value)
           else
-            note.slide = GuitarProHelper::SLIDE_TYPES.fetch(GuitarProHelper::MAP_SLIDE_TYPES_GP4.fetch(value))
+            slides = *GuitarProHelper::MAP_SLIDE_TYPES_GP4.fetch(value)
           end
+
+          note.slide = slides.map { |item| GuitarProHelper::SLIDE_TYPES.fetch(item) }
         end
 
         read_harmonic(note) if has_harmonic

@@ -49,32 +49,32 @@ describe GuitarProParser::Note do
 
     context 'legato slide' do
       test_note :legato_slide
-      its(:slide) { should == :legato_slide }
+      its(:slide) { should == [:legato_slide] }
     end
 
     context 'shift slide' do
       test_note :shift_slide
-      its(:slide) { should == :shift_slide }
+      its(:slide) { should == [:shift_slide] }
     end
 
     context 'slide in from below' do
       test_note :slide_in_from_below
-      its(:slide) { should == :slide_in_from_below }
+      its(:slide) { should == [:slide_in_from_below] }
     end
 
     context 'slide in from above' do
       test_note :slide_in_from_above
-      its(:slide) { should == :slide_in_from_above }
+      its(:slide) { should == [:slide_in_from_above] }
     end
 
     context 'slide out and downwards' do
       test_note :slide_out_and_downwards
-      its(:slide) { should == :slide_out_and_downwards }
+      its(:slide) { should == [:slide_out_and_downwards] }
     end
 
     context 'slide out and upwards' do
       test_note :slide_out_and_upwards
-      its(:slide) { should == :slide_out_and_upwards }
+      its(:slide) { should == [:slide_out_and_upwards] }
     end
 
   end
