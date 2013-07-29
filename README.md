@@ -19,10 +19,6 @@ Or install it yourself as:
 
 ## Usage
   
-  Require the library:
-
-    require 'guitar_pro_parser'
-
   Read the file:
 
     song = GuitarProParser.read_file('path_to_file')
@@ -70,3 +66,5 @@ Or install it yourself as:
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
+
+If you have a tab that couldn't be read or is read incorrectly, please send it to immaculate.pine@gmail.com or create an issue on Github with description of bug.

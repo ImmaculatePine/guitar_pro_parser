@@ -70,19 +70,6 @@ module GuitarProHelper
   CHORD_TONALITIES = [:perfect, :diminished, :augmented]
   
 
-  # Macros to create boolean instance variables' getters like this:
-  #   attr_boolean :complete
-  # generates
-  #   complete?
-  # method that returns @complete instance variable
-  def attr_boolean(*variables)
-    variables.each do |variable|
-      define_method("#{variable}?") do
-        instance_variable_get("@#{variable}")
-      end
-    end
-  end
-
   # Converts note's digit representation to its string equivalent:
   # 0 for C0, 1 for C#0, etc.
   def GuitarProHelper.digit_to_note(digit)
