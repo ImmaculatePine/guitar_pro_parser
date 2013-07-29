@@ -683,7 +683,7 @@ module GuitarProParser
       @input.skip_short_integer if @version < 5.0 && note.time_independent_duration
 
       note.dynamic = GuitarProHelper::NOTE_DYNAMICS.fetch(@input.read_byte - 1) if has_dynamic
-      note.fret = @input.read_byte
+      note.fret = @input.read_byte if has_type
 
       if has_fingering
         left_finger = @input.read_signed_byte
