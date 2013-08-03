@@ -18,7 +18,7 @@ module GuitarProParser
       read_lyrics if @version >= 4.0
 
       if @version > 5.0
-        @song.master_volume = @input.read_integer 
+        @song.master_volume = @input.read_signed_integer 
         @input.skip_integer
         11.times { |n| @song.equalizer[n] = @input.read_byte }
       end
@@ -29,10 +29,10 @@ module GuitarProParser
       @song.octave = @input.read_byte if @version >= 4.0
       read_channels
       read_musical_directions if @version >= 5.0
-      @song.master_reverb = @input.read_integer if @version >= 5.0
+      @song.master_reverb = @input.read_signed_integer if @version >= 5.0
 
-      bars_count = @input.read_integer
-      tracks_count = @input.read_integer
+      bars_count = @input.read_signed_integer
+      tracks_count = @input.read_signed_integer
 
       if headers_only
         bars_count.times { @song.add_bar_settings }
@@ -52,7 +52,7 @@ module GuitarProParser
 
           voices_count.times do |voice_number|
             voice = GuitarProHelper::VOICES.fetch(voice_number)
-            beats_count = @input.read_integer
+            beats_count = @input.read_signed_integer
             beats_count.times { read_beat(track, bar, voice) }
           end
 
@@ -92,7 +92,7 @@ module GuitarProParser
     def read_notices
       notices = []
 
-      notices_count = @input.read_integer
+      notices_count = @input.read_signed_integer
       notices_count.times { notices << @input.read_chunk }
       
       @song.notices = notices.join('/n')
@@ -100,11 +100,11 @@ module GuitarProParser
 
     # > 4.0 only
     def read_lyrics
-      @song.lyrics_track = @input.read_integer
+      @song.lyrics_track = @input.read_signed_integer
 
       5.times do 
-        start_bar = @input.read_integer
-        length = @input.read_integer
+        start_bar = @input.read_signed_integer
+        length = @input.read_signed_integer
         lyrics_text = @input.read_string length
         @song.lyrics << {text: lyrics_text, bar: start_bar}
       end
@@ -112,13 +112,13 @@ module GuitarProParser
 
     #  >= 5.0 only
     def read_page_setup
-      @song.page_setup.page_format_length = @input.read_integer
-      @song.page_setup.page_format_width = @input.read_integer
-      @song.page_setup.left_margin = @input.read_integer
-      @song.page_setup.right_margin = @input.read_integer
-      @song.page_setup.top_margin = @input.read_integer
-      @song.page_setup.bottom_margin = @input.read_integer
-      @song.page_setup.score_size = @input.read_integer
+      @song.page_setup.page_format_length = @input.read_signed_integer
+      @song.page_setup.page_format_width = @input.read_signed_integer
+      @song.page_setup.left_margin = @input.read_signed_integer
+      @song.page_setup.right_margin = @input.read_signed_integer
+      @song.page_setup.top_margin = @input.read_signed_integer
+      @song.page_setup.bottom_margin = @input.read_signed_integer
+      @song.page_setup.score_size = @input.read_signed_integer
 
       # The enabled header/footer fields bitmask declares which fields are displayed:
       # Bit 0 (LSB):  Title field
@@ -158,7 +158,7 @@ module GuitarProParser
 
     def read_tempo
       @song.tempo = @input.read_chunk if @version >= 5.0
-      @song.bpm = @input.read_integer
+      @song.bpm = @input.read_signed_integer
       @input.skip_byte if @version > 5.0
     end
 
@@ -167,7 +167,7 @@ module GuitarProParser
         @song.key = @input.read_byte
         @input.increment_offset(3)
       else
-        @song.key = @input.read_integer
+        @song.key = @input.read_signed_integer
       end
     end
 
@@ -176,7 +176,7 @@ module GuitarProParser
         @song.channels << []
         16.times do
           channel = Channel.new
-          channel.instrument = @input.read_integer
+          channel.instrument = @input.read_signed_integer
           channel.volume = @input.read_byte
           channel.pan = @input.read_byte
           channel.chorus = @input.read_byte
@@ -309,17 +309,17 @@ module GuitarProParser
       track.name = @input.read_string length
       @input.increment_offset (track_name_field_length - length - 1)
 
-      strings_count = @input.read_integer
+      strings_count = @input.read_signed_integer
       track.strings.clear
-      strings_count.times { track.strings << (GuitarProHelper.digit_to_note(@input.read_integer)) }
+      strings_count.times { track.strings << (GuitarProHelper.digit_to_note(@input.read_signed_integer)) }
       # Skip padding if there are less than 7 strings
       (7 - strings_count).times { @input.skip_integer }
 
-      track.midi_port = @input.read_integer
-      track.midi_channel = @input.read_integer
-      track.midi_channel_for_effects = @input.read_integer
-      track.frets_count = @input.read_integer
-      track.capo = @input.read_integer
+      track.midi_port = @input.read_signed_integer
+      track.midi_channel = @input.read_signed_integer
+      track.midi_channel_for_effects = @input.read_signed_integer
+      track.frets_count = @input.read_signed_integer
+      track.capo = @input.read_signed_integer
 
       track.color.clear
       3.times { track.color << @input.read_byte }
@@ -396,7 +396,7 @@ module GuitarProParser
 
       beat.rest = GuitarProHelper::REST_TYPES.fetch(@input.read_byte.to_s) if is_rest
       beat.duration = GuitarProHelper::DURATIONS.fetch(@input.read_signed_byte.to_s)
-      beat.tuplet = @input.read_integer if is_tuplet
+      beat.tuplet = @input.read_signed_integer if is_tuplet
       read_chord_diagram(beat, track.strings.count) if has_chord_diagram
       beat.text = @input.read_chunk if has_text
       read_beat_effects(beat) if has_effects
@@ -444,9 +444,9 @@ module GuitarProParser
       format = @input.read_bitmask
       if format[0] == false # Guitar Pro 3 format
         beat.chord_diagram.name = @input.read_chunk
-        beat.chord_diagram.base_fret = @input.read_integer
+        beat.chord_diagram.base_fret = @input.read_signed_integer
         unless beat.chord_diagram.base_fret.zero?
-          strings_count.times { beat.chord_diagram.frets << @input.read_integer }
+          strings_count.times { beat.chord_diagram.frets << @input.read_signed_integer }
         end
       else # Guitar Pro 4 and 5 format
         beat.chord_diagram.display_as = @input.read_boolean ? :sharp : :flat
@@ -458,10 +458,10 @@ module GuitarProParser
         beat.chord_diagram.type = GuitarProHelper::CHORD_TYPES[@input.read_byte]
         beat.chord_diagram.nine_eleven_thirteen = GuitarProHelper::NINE_ELEVEN_THIRTEEN.fetch(@input.read_byte)
 
-        bass = @input.read_integer
+        bass = @input.read_signed_integer
         beat.chord_diagram.bass = GuitarProHelper::NOTES[bass] if bass >= 0
 
-        beat.chord_diagram.tonality = GuitarProHelper::CHORD_TONALITIES[@input.read_integer]
+        beat.chord_diagram.tonality = GuitarProHelper::CHORD_TONALITIES[@input.read_signed_integer]
         beat.chord_diagram.add = @input.read_boolean
 
         name_length = @input.read_byte
@@ -473,9 +473,9 @@ module GuitarProParser
         beat.chord_diagram.ninth_tonality = GuitarProHelper::CHORD_TONALITIES[@input.read_byte]
         beat.chord_diagram.eleventh_tonality = GuitarProHelper::CHORD_TONALITIES[@input.read_byte]
 
-        beat.chord_diagram.base_fret = @input.read_integer
+        beat.chord_diagram.base_fret = @input.read_signed_integer
 
-        strings_count.times { beat.chord_diagram.frets << @input.read_integer }        
+        strings_count.times { beat.chord_diagram.frets << @input.read_signed_integer }        
         (7 - strings_count).times { @input.skip_integer }
 
         barres_count = @input.read_byte
@@ -554,7 +554,7 @@ module GuitarProParser
       if beat.has_effect? :string_effect
         beat.effects[:string_effect] = GuitarProHelper::STRING_EFFECTS.fetch(@input.read_byte)
         # Skip a value applied to the string effect in old Guitar Pro versions
-        @input.read_integer if @version < 4.0
+        @input.read_signed_integer if @version < 4.0
       end
 
       beat.effects[:tremolo_bar] = read_bend if beat.has_effect? :tremolo_bar
@@ -570,12 +570,12 @@ module GuitarProParser
 
     def read_bend
       type = GuitarProHelper::BEND_TYPES.fetch(@input.read_byte)
-      height = @input.read_integer
-      points_coint = @input.read_integer
+      height = @input.read_signed_integer
+      points_coint = @input.read_signed_integer
       result = { type: type, height: height, points: [] }
       points_coint.times do
-        time = @input.read_integer
-        pitch_alteration = @input.read_integer
+        time = @input.read_signed_integer
+        pitch_alteration = @input.read_signed_integer
         vibrato_type = GuitarProHelper::BEND_VIBRATO_TYPES.fetch(@input.read_byte)
         result[:points] << { time: time, pitch_alteration: pitch_alteration, vibrato_type: vibrato_type }
       end
@@ -605,7 +605,7 @@ module GuitarProParser
       
       tempo_string = ''
       tempo_string = @input.read_chunk if @version >= 5.0
-      tempo = @input.read_integer
+      tempo = @input.read_signed_integer
 
       beat.mix_table[:volume] = { value: volume, transition: @input.read_byte } if volume >= 0
       beat.mix_table[:pan] = { value: pan, transition: @input.read_byte } if pan >= 0

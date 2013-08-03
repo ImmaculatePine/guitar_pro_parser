@@ -15,14 +15,14 @@ module GuitarProParser
 
     # Reads unsigned integer (4 bytes)
     def read_integer
-      value = IO.binread(@file_path, INTEGER_LENGTH, @offset).unpack('i')[0]
+      value = IO.binread(@file_path, INTEGER_LENGTH, @offset).unpack('I')[0]
       skip_integer
       value
     end
 
     # Reads signed integer (4 bytes)
     def read_signed_integer
-      value = IO.binread(@file_path, INTEGER_LENGTH, @offset).unpack('I')[0]
+      value = IO.binread(@file_path, INTEGER_LENGTH, @offset).unpack('i')[0]
       skip_integer
       value
     end
