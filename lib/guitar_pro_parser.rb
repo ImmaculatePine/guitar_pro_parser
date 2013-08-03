@@ -9,6 +9,11 @@ require 'guitar_pro_parser/beat'
 require 'guitar_pro_parser/chord_diagram'
 require 'guitar_pro_parser/note'
 
+require 'guitar_pro_parser/io/gp5_writer'
+require 'guitar_pro_parser/io/output_stream'
+
+require 'guitar_pro_parser/io/input_stream'
+
 module GuitarProParser
 
   # Reads the whole Guitar Pro file and returns song object
@@ -20,6 +25,11 @@ module GuitarProParser
   # from Guitar Pro file
   def self.read_headers(filename)
     Song.new(filename, true)
+  end
+
+  # Saves song to .gp5 file
+  def self.save_file_as_gp5(song, filename)
+    
   end
 
 end
