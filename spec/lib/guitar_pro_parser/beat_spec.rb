@@ -58,7 +58,8 @@ describe GuitarProParser::Beat do
                                    :volume=>{:value=>14, :transition=>2, :apply_to=>:all},
                                    :chorus=>{:value=>2, :transition=>0, :apply_to=>:current},
                                    :phaser=>{:value=>3, :transition=>1, :apply_to=>:current}, 
-                                   :rse_effect_2=>"Acoustic - Default", :rse_effect_1=>"Acoustic Tones"} }
+                                   :rse_effect_2=>"Acoustic - Default", :rse_effect_1=>"Acoustic Tones",
+                                   :rse_related_data => [25, 1, 1]} }
     end
   end
 

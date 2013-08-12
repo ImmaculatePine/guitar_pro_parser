@@ -29,7 +29,7 @@ module GuitarProParser
 
   # Saves song to .gp5 file
   def self.save_file_as_gp5(song, filename)
-    
+    GP5Writer.new(song, filename)
   end
 
 end

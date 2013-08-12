@@ -86,6 +86,14 @@ module GuitarProHelper
     "#{NOTES.fetch(note_index)}#{octave.to_s}"
   end
 
+  # Converts note to its digit representation
+  def GuitarProHelper.note_to_digit(note)
+    result = 0
+    until GuitarProHelper.digit_to_note(result) == note
+      result = result + 1
+    end
+    result
+  end
 
   # TODO: Create helper to convert number of increments of .1dB to float for equalizers
   

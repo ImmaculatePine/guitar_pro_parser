@@ -7,8 +7,6 @@ module GuitarProParser
 
     def initialize(song, file_path, headers_only)
       @song = song
-      @file_path = file_path
-
       @input = InputStream.new(file_path)
 
       read_version
@@ -434,7 +432,10 @@ module GuitarProParser
         beat.transpose = '15mb' if bits2[0]
 
         # Unknown data
-        @input.skip_byte if bits2[3]
+        if bits2[3]
+          beat.extra_byte_after_transpose = true
+          @input.skip_byte
+        end
       end
     end
 
@@ -591,8 +592,8 @@ module GuitarProParser
       beat.mix_table[:instrument] = instrument unless instrument == -1
 
       if @version >= 5.0
-        # RSE related 4 digit numbers (-1 if RSE is disabled)
-        3.times { @input.skip_integer }
+        beat.mix_table[:rse_related_data] = []
+        3.times { beat.mix_table[:rse_related_data] << @input.read_signed_integer }
         @input.skip_integer # Padding
       end
 
@@ -668,6 +669,7 @@ module GuitarProParser
       # Guitar Pro 5 files has 'Heavy accentuated' (bit 1) and 'Accentuated' (bit 6) states.
       # Guitar Pro 4 and less have only 'Accentuated' (bit 6) state.
       # So the only supported option for note is just 'Accentuated'.
+      # TODO: I think it's better to work with both types of accentuation
       note.accentuated = bits[1] || bits[6]
 
       note.ghost = bits[2]

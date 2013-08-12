@@ -11,7 +11,8 @@ module GuitarProParser
                   :text,
                   :effects,
                   :strings,
-                  :transpose
+                  :transpose,
+                  :extra_byte_after_transpose
     
     def initialize
       # Initialize attributes by default values
@@ -27,6 +28,7 @@ module GuitarProParser
       @strings = {}
 
       @transpose = nil
+      @extra_byte_after_transpose = false
     end
 
     def has_effect?(effect)

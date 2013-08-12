@@ -45,10 +45,14 @@ module GuitarProParser
 
     def write_bitmask(value)
       binary = ''
-      value.reverse!
-      value.each { |bit| binary += bit ? '1' : '0'}
+      bits = value.reverse
+      bits.each { |bit| binary += bit ? '1' : '0'}
       digit = binary.to_i(2)
       write_byte(digit)
+    end
+
+    def write_string(value)
+      write_to_buffer(value)
     end
 
     # Writes data chunk to file.
@@ -58,19 +62,13 @@ module GuitarProParser
     # 1 byte  - string length (N)
     # N bytes - string
     def write_chunk(value)
-      write_integer(value.length + 1)
+      write_signed_integer(value.length + 1)
       write_byte(value.length)
       write_string(value)
     end
 
     def write_padding(size)
       size.times { write_byte(0) }
-    end
-
-    private
-
-    def write_string(value)
-      write_to_buffer(value)
     end
 
   end

@@ -70,6 +70,15 @@ describe GuitarProParser::OutputStream do
     end
   end
 
+    describe '#write_string' do
+    it 'writes string' do
+      test_string = 'Test string'
+      subject.write_string(test_string)
+      subject.close
+      reader.read_string(test_string.length).should == test_string
+    end
+  end
+
   describe '#write_chunk' do
     it 'writes chunk' do
       test_string = 'Test string'
