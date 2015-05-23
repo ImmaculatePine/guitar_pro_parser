@@ -56,6 +56,11 @@ Or install it yourself as:
     song.tracks.first.bars # => []
 
   All available methods and attributes could be found in the source code. :)
+
+  You can also export song object to JSON format:
+
+    puts song.to_json
+    # {"meta":{"version":4.0,"title":"Song Title","subtitle":"","artist":"The Artist","album":"The Album" ...
   
   TODO: Write documentation.
 

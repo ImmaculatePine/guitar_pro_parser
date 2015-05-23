@@ -146,6 +146,32 @@ module GuitarProParser
       @tracks.last
     end
 
+    # Converts Song object to Hash
+    # @return [Hash] song as a Hash
+    def to_hash
+      {
+        'meta' => {
+          'version' => version,
+          'title' => title,
+          'subtitle' => subtitle,
+          'artist' => artist,
+          'album' => album,
+          'lyricist' => lyricist,
+          'composer' => composer,
+          'copyright' => copyright,
+          'transcriber' => transcriber,
+          'instructions' => instructions,
+          'notices' => notices
+        }
+      }
+    end
+
+    # Converts Song object to JSON
+    # @return [String] song as a JSON
+    def to_json
+      Oj.dump(to_hash)
+    end
+
   end
 
 end

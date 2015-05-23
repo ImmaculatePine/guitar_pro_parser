@@ -14,6 +14,8 @@ require 'guitar_pro_parser/io/output_stream'
 
 require 'guitar_pro_parser/io/input_stream'
 
+require 'oj'
+
 module GuitarProParser
 
   # Reads the whole Guitar Pro file and returns song object
