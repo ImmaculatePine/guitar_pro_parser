@@ -1,23 +1,23 @@
 require 'spec_helper'
 
-describe GuitarProParser do
-  it 'should has a version' do
-    GuitarProParser::VERSION.should_not be_nil
+RSpec.describe GuitarProParser do
+  it 'has a version' do
+    expect(GuitarProParser::VERSION).not_to be_nil
   end
 
   shared_examples 'all Guitar Pro versions' do
     it 'is a song object' do
-      subject.should be_kind_of GuitarProParser::Song
+      expect(subject).to be_kind_of(GuitarProParser::Song)
     end
 
-    its(:title) { should == 'Song Title'}
-    its('tracks.count') { should == 10 }
+    its(:title) { is_expected.to eq('Song Title') }
+    its('tracks.count') { is_expected.to eq(10) }
   end
 
   shared_examples 'file with headers only' do
     it 'has no data about notes' do
       subject.tracks.each do |track|
-        track.bars.should be_empty
+        expect(track.bars).to be_empty
       end
     end
   end

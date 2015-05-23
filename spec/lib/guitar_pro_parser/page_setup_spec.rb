@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe GuitarProParser::PageSetup do
+RSpec.describe GuitarProParser::PageSetup do
   subject { GuitarProParser::Song.new(test_tab_path(5)).page_setup }
 
   its(:page_format_length) { should == 210 }

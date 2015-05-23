@@ -13,7 +13,7 @@ def test_beat(type)
   subject { song.tracks[track].bars[bar].get_beat(beat) }
 end
 
-describe GuitarProParser::Beat do
+RSpec.describe GuitarProParser::Beat do
 
   shared_examples 'any Guitar Pro version' do
     context '1 beat, 1 bar, 1 track' do

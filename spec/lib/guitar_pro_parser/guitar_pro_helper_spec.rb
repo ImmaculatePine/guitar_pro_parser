@@ -1,19 +1,19 @@
 require 'spec_helper'
 
-describe GuitarProHelper do
+RSpec.describe GuitarProHelper do
   describe '.digit_to_note' do
     it 'converts digit to correct note' do
-      digits = [0, 1, 2]
-      notes = ['C0', 'C#0', 'D0']
-      digits.count.times { |i| (GuitarProHelper.digit_to_note(digits.fetch(i))).should == notes.fetch(i) }
+      expect(GuitarProHelper.digit_to_note(0)).to eq('C0')
+      expect(GuitarProHelper.digit_to_note(1)).to eq('C#0')
+      expect(GuitarProHelper.digit_to_note(2)).to eq('D0')
     end
   end
 
   describe '.note_to_digit' do
     it 'converts note to digit' do
-      digits = [0, 1, 2]
-      notes = ['C0', 'C#0', 'D0']
-      digits.count.times { |i| (GuitarProHelper.note_to_digit(notes.fetch(i))).should == digits.fetch(i) }
+      expect(GuitarProHelper.note_to_digit('C0')).to eq(0)
+      expect(GuitarProHelper.note_to_digit('C#0')).to eq(1)
+      expect(GuitarProHelper.note_to_digit('D0')).to eq(2)
     end
   end
 end

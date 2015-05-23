@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe GuitarProParser::Song do
+RSpec.describe GuitarProParser::Song do
 
   shared_examples 'Any Guitar Pro version' do
     its(:title) { should == 'Song Title' }
@@ -28,7 +28,7 @@ describe GuitarProParser::Song do
 
     it 'should determine lyrics' do
       5.times do |i|
-        subject.lyrics.should include( {text: "Lyrics line #{i+1}", bar: i+1} )
+        expect(subject.lyrics).to include({ text: "Lyrics line #{i+1}", bar: i+1 })
       end
     end
 
@@ -55,7 +55,7 @@ describe GuitarProParser::Song do
     
     it 'has proper musical directions' do
       subject.musical_directions.each do |key, value|
-        value.should == nil
+        expect(value).to be_nil
       end
     end
 
@@ -99,7 +99,7 @@ describe GuitarProParser::Song do
       }
 
       subject.musical_directions.each do |key, value|
-        value.should == correct_values[key]
+        expect(value).to eq(correct_values[key])
       end
     end
   end

@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe GuitarProParser::Channel do
+RSpec.describe GuitarProParser::Channel do
 
   shared_examples 'any Guitar Pro version' do
     context 'port 1, channel 1' do

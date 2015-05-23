@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe GuitarProParser::ChordDiagram do
+RSpec.describe GuitarProParser::ChordDiagram do
 
   shared_examples 'any Guitar Pro version' do
     context 'F#m11/9-' do

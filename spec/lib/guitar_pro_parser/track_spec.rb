@@ -26,7 +26,7 @@ def test_track(test_type)
   subject {song.tracks[refs[test_type]]}
 end
 
-describe GuitarProParser::Track do
+RSpec.describe GuitarProParser::Track do
 
   shared_examples 'default track of any version' do
     its(:drums) { should == false }

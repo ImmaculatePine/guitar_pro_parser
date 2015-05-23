@@ -20,7 +20,7 @@ def test_note(type)
   subject { song.tracks[track_number].bars[bar_number].get_beat(beat_number).strings[string_number] }
 end
 
-describe GuitarProParser::Note do
+RSpec.describe GuitarProParser::Note do
 
   shared_examples 'any Guitar Pro version' do
     
