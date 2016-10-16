@@ -16,11 +16,11 @@ module GuitarProParser
       read_lyrics if @version >= 4.0
 
       if @version > 5.0
-        @song.master_volume = @input.read_signed_integer 
+        @song.master_volume = @input.read_signed_integer
         @input.skip_integer
         11.times { |n| @song.equalizer[n] = @input.read_byte }
       end
-      
+
       read_page_setup if @version >= 5.0
       read_tempo
       read_key
@@ -41,8 +41,8 @@ module GuitarProParser
       bars_count.times { read_bars_settings }
       tracks_count.times { read_track }
       @input.skip_byte if @version >= 5.0
-      
-      @song.bars_settings.each do |bar_settings| 
+
+      @song.bars_settings.each do |bar_settings|
         @song.tracks.each do |track|
           bar = Bar.new
 
@@ -92,7 +92,7 @@ module GuitarProParser
 
       notices_count = @input.read_signed_integer
       notices_count.times { notices << @input.read_chunk }
-      
+
       @song.notices = notices.join('/n')
     end
 
@@ -100,7 +100,7 @@ module GuitarProParser
     def read_lyrics
       @song.lyrics_track = @input.read_signed_integer
 
-      5.times do 
+      5.times do
         start_bar = @input.read_signed_integer
         length = @input.read_signed_integer
         lyrics_text = @input.read_string length
@@ -198,7 +198,7 @@ module GuitarProParser
 
     def read_bars_settings
       bars_settings = @song.add_bar_settings
-      
+
       bits = @input.read_bitmask
       has_new_time_signature_numerator = bits[0]
       has_new_time_signature_denominator = bits[1]
@@ -214,7 +214,7 @@ module GuitarProParser
       beam_eight_notes_by_values = []
 
       if bars_settings.has_end_of_repeat
-        bars_settings.repeats_count = @input.read_byte 
+        bars_settings.repeats_count = @input.read_byte
 
         # Version 5 of the format has slightly different counting for repeats
         bars_settings.repeats_count = bars_settings.repeats_count - 1 if @version >= 5.0
@@ -246,11 +246,11 @@ module GuitarProParser
 
         # If a GP5 file doesn't define an alternate ending here, ignore a byte of padding
         @input.skip_byte unless has_alternate_endings
-        
+
         # Read triplet feel
         bars_settings.triplet_feel = GuitarProHelper::TRIPLET_FEEL[@input.read_byte]
         @song.triplet_feel = true if bars_settings.triplet_feel
-        
+
         # Skip byte of padding
         @input.skip_byte
       end
@@ -278,13 +278,13 @@ module GuitarProParser
       name = @input.read_chunk
       color = []
       3.times { color << @input.read_byte }
-      bars_settings.set_marker(name, color)      
+      bars_settings.set_marker(name, color)
       @input.skip_byte
     end
 
     def read_track
       track = @song.add_track
-      
+
       # Bit 0 (LSB):  Drums track
       # Bit 1:        12 stringed guitar track
       # Bit 2:        Banjo track
@@ -399,10 +399,10 @@ module GuitarProParser
       beat.text = @input.read_chunk if has_text
       read_beat_effects(beat) if has_effects
       read_mix_table(beat) if has_mix_table_change 
-      
+
       strings_bitmask = @input.read_bitmask
       used_strings = []
-      (0..6).to_a.reverse.each { |i| used_strings << strings_bitmask[i] }
+      (0..6).to_a.reverse_each { |i| used_strings << strings_bitmask[i] }
       7.times do |i|
         if used_strings[i]
           note = Note.new
@@ -476,7 +476,7 @@ module GuitarProParser
 
         beat.chord_diagram.base_fret = @input.read_signed_integer
 
-        strings_count.times { beat.chord_diagram.frets << @input.read_signed_integer }        
+        strings_count.times { beat.chord_diagram.frets << @input.read_signed_integer }
         (7 - strings_count).times { @input.skip_integer }
 
         barres_count = @input.read_byte
@@ -486,7 +486,7 @@ module GuitarProParser
         5.times { barres_frets << @input.read_byte }
         5.times { barres_starts << @input.read_byte }
         5.times { barres_ends << @input.read_byte }
-        barres_count.times do |i| 
+        barres_count.times do |i|
           beat.chord_diagram.add_barre(barres_frets[i],
                                        barres_starts[i],
                                        barres_ends[i])
@@ -603,7 +603,7 @@ module GuitarProParser
       reverb = @input.read_signed_byte
       phaser = @input.read_signed_byte
       tremolo = @input.read_signed_byte
-      
+
       tempo_string = ''
       tempo_string = @input.read_chunk if @version >= 5.0
       tempo = @input.read_signed_integer
@@ -619,7 +619,7 @@ module GuitarProParser
         beat.mix_table[:tempo] = { value: tempo, transition: @input.read_byte, text: tempo_string }
         beat.mix_table[:tempo][:hidden_text] = @input.read_byte if @version > 5.0
       end
-      
+
       # The mix table change applied tracks bitmask declares which mix change events apply to all tracks (set = all tracks, reset = current track only):
       # Bit 0 (LSB):  Volume change
       # Bit 1:    Pan change
@@ -641,7 +641,7 @@ module GuitarProParser
 
       # Padding
       @input.skip_byte if @version >= 5.0
-      
+
       if @version > 5.0
         rse_effect_2 = @input.read_chunk
         rse_effect_1 = @input.read_chunk
@@ -662,7 +662,7 @@ module GuitarProParser
       # Bit 6:    Accentuated note
       # Bit 7:    Right/Left hand fingering
       bits = @input.read_bitmask
-      
+
       # TODO: Find in Guitar Pro how to enable this feature
       note.time_independent_duration = bits[0]
 
@@ -756,7 +756,7 @@ module GuitarProParser
         if has_slide
           value = @input.read_signed_byte.to_s
           slides = []
-          
+
           if @version >= 5.0
             slides = *GuitarProHelper::MAP_SLIDE_TYPES_GP5.fetch(value)
           else
@@ -809,7 +809,7 @@ module GuitarProParser
                                  '5' => 5 }
         type = GuitarProHelper::HARMONIC_TYPES.fetch(map_of_gp4_harmonics[harmonic_type_index.to_s])
       end
-      
+
       note.add_harmonic(type)
 
       # Guitar Pro 5 has additional data about artificial and tapped harmonics
