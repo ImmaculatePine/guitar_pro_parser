@@ -162,14 +162,16 @@ module GuitarProParser
           'transcriber' => transcriber,
           'instructions' => instructions,
           'notices' => notices
-        }
+        },
+        'tracks' => tracks
       }
     end
 
     # Converts Song object to JSON
     # @return [String] song as a JSON
     def to_json
-      Oj.dump(to_hash)
+      # Use compat mode so that the export is compatible with other JSON readers.
+      Oj.dump(to_hash, :mode => :compat)
     end
 
   end
